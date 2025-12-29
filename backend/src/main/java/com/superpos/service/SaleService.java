@@ -5,8 +5,8 @@ import com.superpos.model.Sale;
 import com.superpos.model.SaleItem;
 import com.superpos.repository.ProductRepository;
 import com.superpos.repository.SaleRepository;
-import com.superpos.service.exception.InsufficientStockException;
-import com.superpos.service.exception.ProductNotFoundException;
+import com.superpos.exception.InsufficientStockException;
+import com.superpos.exception.ProductNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

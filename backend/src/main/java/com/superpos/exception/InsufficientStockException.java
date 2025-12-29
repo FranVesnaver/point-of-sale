@@ -1,4 +1,4 @@
-package com.superpos.service.exception;
+package com.superpos.exception;
 
 public class InsufficientStockException extends RuntimeException {
     public InsufficientStockException(String productName) {
