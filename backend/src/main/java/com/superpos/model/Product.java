@@ -24,14 +24,17 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @NotBlank
     @Column(nullable = false)
     private String barcode;
 
+    @Setter
     @NotBlank
     @Column(nullable = false)
     private String name;
 
+    @Setter
     @NotNull
     @DecimalMin(value = "0,01")
     private BigDecimal price;
