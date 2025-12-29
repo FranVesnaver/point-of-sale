@@ -36,6 +36,7 @@ public class Product {
     @DecimalMin(value = "0,01")
     private BigDecimal price;
 
+    @Setter
     @Min(0)
     @Column(nullable = false)
     private int stock;

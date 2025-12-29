@@ -2,6 +2,7 @@ package com.superpos.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,9 +19,11 @@ public class Sale {
     private Long id;
 
     @Column(name = "date_time", nullable = false)
+    @Setter
     private LocalDateTime dateTime;
 
     @Column(nullable = false)
+    @Setter
     private BigDecimal total;
 
     @OneToMany(
