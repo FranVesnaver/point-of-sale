@@ -36,7 +36,7 @@ public class Product {
 
     @Setter
     @NotNull
-    @DecimalMin(value = "0,01")
+    @DecimalMin(value = "0.01")
     private BigDecimal price;
 
     @Setter
