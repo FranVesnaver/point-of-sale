@@ -26,3 +26,9 @@ cd backend/
 ./mvnw clean test
 ./mvnw org.pitest:pitest-maven:mutationCoverage
 ```
+
+- Access to database
+```bash
+psql -U postgres -d super -h localhost
+// password postgres
+```
