@@ -3,6 +3,7 @@ package com.superpos.controller;
 import com.superpos.dto.AddItemRequest;
 import com.superpos.dto.SaleItemResponse;
 import com.superpos.dto.SaleResponse;
+import com.superpos.exception.SaleNotFoundException;
 import com.superpos.model.Sale;
 import com.superpos.repository.SaleRepository;
 import com.superpos.service.SaleService;
@@ -37,7 +38,7 @@ public class SaleController {
             ) {
 
         Sale sale = saleRepository.findById(saleId)
-                .orElseThrow(() -> new RuntimeException("Sale not found"));
+                .orElseThrow(() -> new SaleNotFoundException(saleId));
 
         saleService.addProductToSale(sale, request.getBarcode(), request.getQuantity());
 
@@ -51,7 +52,7 @@ public class SaleController {
     ) {
 
         Sale sale = saleRepository.findById(saleId)
-                .orElseThrow(() -> new RuntimeException("Sale not found"));
+                .orElseThrow(() -> new SaleNotFoundException(saleId));
 
         Sale finalizedSale = saleService.finalizeSale(sale);
 
