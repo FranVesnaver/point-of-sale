@@ -5,6 +5,7 @@ import {useState} from "react";
 import Dashboard from "../components/dashboard.jsx";
 import {Navigation} from "../components/navigation.jsx";
 import {ContextProvider} from "../lib/context.jsx";
+import {SalesView} from "../components/sales-view.jsx";
 
 function Content() {
     const [currentView, setCurrentView] = useState("dashboard");
@@ -13,6 +14,8 @@ function Content() {
         switch (currentView) {
             case "dashboard":
                 return <Dashboard />
+            case "sales":
+                return <SalesView />
             default:
                 return <Dashboard />
         }
