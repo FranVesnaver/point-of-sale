@@ -2,6 +2,8 @@
 A Point of Sale software for managing sales and item stocks
 
 ## Running and testing the app
+ 
+### Backend
 - To run the Spring application
 ```bash
 cd backend/
@@ -31,4 +33,11 @@ cd backend/
 ```bash
 psql -U postgres -d super -h localhost
 // password postgres
+```
+
+### Frontend
+```bash
+cd frontend/
+npm run dev
+// open browser in http://localhost:5173/
 ```
