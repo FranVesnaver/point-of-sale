@@ -4,6 +4,7 @@ import {useState} from "react";
 
 import Dashboard from "../components/dashboard.jsx";
 import {Navigation} from "../components/navigation.jsx";
+import {ContextProvider} from "../lib/context.jsx";
 
 function Content() {
     const [currentView, setCurrentView] = useState("dashboard");
@@ -11,6 +12,8 @@ function Content() {
     const renderView = () => {
         switch (currentView) {
             case "dashboard":
+                return <Dashboard />
+            default:
                 return <Dashboard />
         }
     }
@@ -30,9 +33,9 @@ function Content() {
 
 function MainPage() {
     return (
-        <>
+        <ContextProvider>
             <Content/>
-        </>
+        </ContextProvider>
     )
 }
 

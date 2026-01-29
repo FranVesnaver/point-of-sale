@@ -1,16 +1,12 @@
 import {Card, CardContent, CardHeader, CardTitle} from "./ui/card.jsx";
 import {AlertTriangle, DollarSign, ShoppingBag, Package, TrendingUp, Clock} from "lucide-react";
-
-import {sampleProducts, sampleTransactions} from "../lib/sample-data.js";
+import {usePOS} from "../lib/context.jsx";
 
 function Dashboard() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // sample data
-    const transactions = sampleTransactions;
-
-    const products = sampleProducts;
+    const { transactions, products } = usePOS()
 
     const todayTransactions = transactions.filter(transaction => new Date(transaction.date) >= today);
     const todaySales = todayTransactions.reduce((sum, transaction) => sum + transaction.total, 0);
