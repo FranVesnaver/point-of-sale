@@ -8,7 +8,7 @@ const navItems = [
     { id: 'history', label: 'Historial', icon: History }
 ]
 
-export function Navigation(currentView, onNavigate) {
+export function Navigation({ currentView, onNavigate }) {
     return (
         <>
             {/* Desktop Sidebar */}
