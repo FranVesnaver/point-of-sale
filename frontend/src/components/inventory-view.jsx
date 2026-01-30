@@ -12,9 +12,11 @@ export function InventoryView() {
     const { products, setProducts, updateProductStock } = usePOS()
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("Todos")
-    const [editingProduct, setEditingProduct] = useState(null)
+    const [editingProductStock, setEditingProductStock] = useState(null)
     const [editStock, setEditStock] = useState("")
     const [showAddProduct, setShowAddProduct] = useState(false)
+    const [showEditProduct, setShowEditProduct] = useState(false)
+    const [editingProduct, setEditingProduct] = useState(null)
     const [newProduct, setNewProduct] = useState({
         name: "",
         price: 0,
@@ -37,7 +39,7 @@ export function InventoryView() {
         if (!Number.isNaN(newStockValue) && newStockValue >= 0) {
             updateProductStock(productId, newStockValue)
         }
-        setEditingProduct(null)
+        setEditingProductStock(null)
         setEditStock("")
     }
 
@@ -63,6 +65,18 @@ export function InventoryView() {
             category: "Abarrotes",
             lowStockThreshold: 10
         })
+    }
+
+    const handleEditProduct = () => {
+        if (!editingProduct.name || !editingProduct.price) return
+
+        const product = products.find(product => product.id === editingProduct.id)
+        products.splice(products.indexOf(product), 1)
+
+        setProducts([...products, editingProduct])
+
+        setShowEditProduct(false)
+        setEditingProduct(null)
     }
 
     return (
@@ -144,7 +158,7 @@ export function InventoryView() {
             <div className="space-y-3">
                 {filteredProducts.map((product) => {
                     const isLowStock = product.stock <= product.lowStockThreshold
-                    const isEditing = editingProduct === product.id
+                    const isEditingStock = editingProductStock === product.id
 
                     return (
                         <Card key={product.id} className={cn("border shadow-sm transition-all", isLowStock && "border-destructive/30")}>
@@ -156,6 +170,17 @@ export function InventoryView() {
                                             <Badge variant="secondary" className="text-xs shrink-0">
                                                 {product.category}
                                             </Badge>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8"
+                                                onClick={() => {
+                                                    setEditingProduct(product)
+                                                    setShowEditProduct(true)
+                                                }}
+                                            >
+                                                <Edit2 className="h-4 w-4" />
+                                            </Button>
                                         </div>
                                         <p className="text-lg font-bold text-primary">${product.price.toFixed(2)}</p>
                                         {product.barcode && (
@@ -164,16 +189,19 @@ export function InventoryView() {
                                     </div>
 
                                     <div className="flex flex-col items-end gap-2">
-                                        {isEditing ? (
+                                        {isEditingStock ? (
                                             <div className="flex items-center gap-2">
-                                                <Input
-                                                    type="number"
-                                                    value={editStock}
-                                                    onChange={(e) => setEditStock(e.target.value)}
-                                                    className="w-20 h-10 text-center"
-                                                    min="0"
-                                                    autoFocus
-                                                />
+                                                <div className="items-center inline-block text-center">
+                                                    <p className="text-xs text-muted-foreground">Stock</p>
+                                                    <Input
+                                                        type="number"
+                                                        value={editStock}
+                                                        onChange={(e) => setEditStock(e.target.value)}
+                                                        className="w-20 h-10 text-center"
+                                                        min="0"
+                                                        autoFocus
+                                                    />
+                                                </div>
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
@@ -187,7 +215,7 @@ export function InventoryView() {
                                                     size="icon"
                                                     className="h-10 w-10"
                                                     onClick={() => {
-                                                        setEditingProduct(null)
+                                                        setEditingProductStock(null)
                                                         setEditStock("")
                                                     }}
                                                 >
@@ -226,7 +254,7 @@ export function InventoryView() {
                                                     size="icon"
                                                     className="h-8 w-8"
                                                     onClick={() => {
-                                                        setEditingProduct(product.id)
+                                                        setEditingProductStock(product.id)
                                                         setEditStock(String(product.stock))
                                                     }}
                                                 >
@@ -317,12 +345,13 @@ export function InventoryView() {
                             </div>
 
                             <div>
-                                <label className="text-sm font-medium text-foreground mb-2 block">Código de Barras (opcional)</label>
+                                <label className="text-sm font-medium text-foreground mb-2 block">Código de Barras</label>
                                 <Input
                                     value={newProduct.barcode || ""}
                                     onChange={(e) => setNewProduct({...newProduct, barcode: e.target.value})}
                                     placeholder="Ej: 7501234567890"
                                     className="h-12"
+                                    autoFocus
                                 />
                             </div>
 
@@ -345,6 +374,110 @@ export function InventoryView() {
                             >
                                 <Plus className="w-5 h-5 mr-2" />
                                 Agregar Producto
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Product Modal */}
+            {showEditProduct && (
+                <div className="fixed inset-0 bg-foreground/50 flex items-end lg:items-center justify-center z-50">
+                    <div className="bg-card w-full lg:w-120 lg:rounded-2xl rounded-t-2xl p-6 max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold text-foreground">Editar Producto</h2>
+                            <Button variant="ghost" size="icon" onClick={() => setShowEditProduct(false)}>
+                                <X className="w-5 h-5" />
+                            </Button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-sm font-medium text-foreground mb-2 block">Nombre del Producto *</label>
+                                <Input
+                                    value={editingProduct.name}
+                                    onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})}
+                                    placeholder="Ej: Leche Entera 1L"
+                                    className="h-12"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-sm font-medium text-foreground mb-2 block">Precio *</label>
+                                    <Input
+                                        type="number"
+                                        value={editingProduct.price || ""}
+                                        onChange={(e) => setEditingProduct({...editingProduct, price: Number.parseFloat(e.target.value)})}
+                                        placeholder="0.00"
+                                        className="h-12"
+                                        step="0.01"
+                                        min="0"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-foreground mb-2 block">Stock Inicial</label>
+                                    <Input
+                                        type="number"
+                                        value={editingProduct.stock || ""}
+                                        onChange={(e) => setEditingProduct({...editingProduct, stock: Number.parseInt(e.target.value)})}
+                                        placeholder="0"
+                                        className="h-12"
+                                        min="0"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-foreground mb-2 block">Categoría</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {categories.filter(c => c !== "Todos").map((category) => (
+                                        <button
+                                            type="button"
+                                            key={category}
+                                            onClick={() => setEditingProduct({...editingProduct, category})}
+                                            className={cn(
+                                                "px-3 py-2 rounded-lg text-sm font-medium transition-all",
+                                                editingProduct.category === category
+                                                    ? "bg-primary text-primary-foreground"
+                                                    : "bg-secondary text-foreground hover:bg-secondary/80"
+                                            )}
+                                        >
+                                            {category}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-foreground mb-2 block">Código de Barras</label>
+                                <Input
+                                    value={editingProduct.barcode || ""}
+                                    onChange={(e) => setEditingProduct({...editingProduct, barcode: e.target.value})}
+                                    placeholder="Ej: 7501234567890"
+                                    className="h-12"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-foreground mb-2 block">Alerta Stock Mínimo</label>
+                                <Input
+                                    type="number"
+                                    value={editingProduct.lowStockThreshold || ""}
+                                    onChange={(e) => setEditingProduct({...editingProduct, lowStockThreshold: Number.parseInt(e.target.value)})}
+                                    placeholder="10"
+                                    className="h-12"
+                                    min="1"
+                                />
+                            </div>
+
+                            <Button
+                                className="w-full h-14 text-lg font-semibold mt-4"
+                                onClick={handleEditProduct}
+                                disabled={!editingProduct.name || !editingProduct.price}
+                            >
+                                <Edit2 className="w-5 h-5 mr-2" />
+                                Guardar Producto
                             </Button>
                         </div>
                     </div>
