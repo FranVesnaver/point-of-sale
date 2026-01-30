@@ -1,5 +1,3 @@
-"use client"
-
 import {useState} from "react";
 
 import Dashboard from "../components/dashboard.jsx";
@@ -7,6 +5,7 @@ import {Navigation} from "../components/navigation.jsx";
 import {ContextProvider} from "../lib/context.jsx";
 import {SalesView} from "../components/sales-view.jsx";
 import {InventoryView} from "../components/inventory-view.jsx";
+import {HistoryView} from "../components/history-view.jsx";
 
 function Content() {
     const [currentView, setCurrentView] = useState("dashboard");
@@ -19,6 +18,8 @@ function Content() {
                 return <SalesView />
             case "inventory":
                 return <InventoryView />
+            case "history":
+                return <HistoryView />
             default:
                 return <Dashboard />
         }
