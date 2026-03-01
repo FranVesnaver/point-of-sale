@@ -24,6 +24,14 @@ public class SaleController {
         this.saleRepository = saleRepository;
     }
 
+    @GetMapping
+    public List<SaleResponse> getAllSales() {
+        return saleRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     @PostMapping
     public SaleResponse createSale() {
         Sale sale = saleService.createSale();
