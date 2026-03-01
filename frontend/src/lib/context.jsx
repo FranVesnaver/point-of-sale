@@ -1,12 +1,33 @@
-import { createContext, useContext, useState } from 'react'
-import { sampleProducts, sampleTransactions } from './sample-data'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { getSales } from "../api/salesApi.js";
+import { getProducts } from "../api/productsApi.js";
 
 const Context = createContext(undefined);
 
 export function ContextProvider({ children }) {
-    const [products, setProducts] = useState(sampleProducts)
+    const [products, setProducts] = useState([])
     const [cart, setCart] = useState([])
-    const [transactions, setTransactions] = useState(sampleTransactions)
+    const [transactions, setTransactions] = useState([])
+
+    useEffect(() => {
+        let active = true;
+
+        (async () => {
+            try {
+                const sales = await getSales();
+                const products = await getProducts();
+                if (active) {
+                    setTransactions(sales);
+                    setProducts(products);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        })();
+        return () => {
+            active = false;
+        }
+    }, []);
 
     const addToCart = (product) => {
         setCart(prev => {
