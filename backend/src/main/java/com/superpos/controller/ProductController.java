@@ -1,11 +1,11 @@
 package com.superpos.controller;
 
+import com.superpos.dto.AddProductRequest;
 import com.superpos.dto.ProductResponse;
 import com.superpos.model.Product;
 import com.superpos.service.ProductService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,6 +25,21 @@ public class ProductController {
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    @PostMapping
+    public ProductResponse addProduct(
+            @Valid @RequestBody AddProductRequest request
+            ) {
+
+        Product product = productService.addProduct(
+                request.getBarcode(),
+                request.getName(),
+                request.getPrice(),
+                request.getStock()
+        );
+
+        return toResponse(product);
     }
 
     private ProductResponse toResponse(Product product) {
