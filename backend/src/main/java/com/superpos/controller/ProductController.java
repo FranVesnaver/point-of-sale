@@ -2,7 +2,7 @@ package com.superpos.controller;
 
 import com.superpos.dto.ProductResponse;
 import com.superpos.model.Product;
-import com.superpos.repository.ProductRepository;
+import com.superpos.service.ProductService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,11 +13,15 @@ import java.util.List;
 @RequestMapping("/api/products")
 public class ProductController {
 
-    private ProductRepository productRepository;
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @GetMapping
     public List<ProductResponse> getProducts() {
-        return productRepository.findAll()
+        return productService.getProducts()
                 .stream()
                 .map(this::toResponse)
                 .toList();
