@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,22 +33,28 @@ class SaleServiceTest {
     private SaleService saleService;
 
     @Test
-    void addProductToSale() {
+    void addProductToSale_shouldAddItemAndUpdateTotal() {
         Product product = new Product();
         product.setBarcode("123");
         product.setName("Coca Cola");
         product.setPrice(new BigDecimal("100"));
         product.setStock(10);
 
+        Sale sale = new Sale();
+        sale.setId(1L);
+        sale.setTotal(BigDecimal.ZERO);
+
+        when(saleRepository.findById(1L))
+                .thenReturn(Optional.of(sale));
+        when(saleRepository.save(any(Sale.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
         when(productRepository.findByBarcode("123"))
                 .thenReturn(Optional.of(product));
 
-        Sale sale = saleService.createSale();
+        Sale updatedSale = saleService.addProductToSale(1L, "123", 2);
 
-        saleService.addProductToSale(sale, "123", 2);
-
-        assertEquals(1, sale.getItems().size());
-        assertEquals(new BigDecimal("200"), sale.getTotal());
+        assertEquals(1, updatedSale.getItems().size());
+        assertEquals(new BigDecimal("200"), updatedSale.getTotal());
     }
 
     @Test
@@ -58,45 +65,57 @@ class SaleServiceTest {
         product.setPrice(new BigDecimal("100"));
         product.setStock(1);
 
+        Sale sale = new Sale();
+        sale.setId(1L);
+        sale.setTotal(BigDecimal.ZERO);
+
+        when(saleRepository.findById(1L))
+                .thenReturn(Optional.of(sale));
         when(productRepository.findByBarcode("123"))
                 .thenReturn(Optional.of(product));
 
-        Sale sale = saleService.createSale();
-
         assertThrows(InsufficientStockException.class,
-                () -> saleService.addProductToSale(sale, "123", 2)
+                () -> saleService.addProductToSale(1L, "123", 2)
         );
     }
 
     @Test
     void addProductToSale_productNotFound() {
+        Sale sale = new Sale();
+        sale.setId(1L);
+        sale.setTotal(BigDecimal.ZERO);
+
+        when(saleRepository.findById(1L))
+                .thenReturn(Optional.of(sale));
         when(productRepository.findByBarcode("999"))
                 .thenReturn(Optional.empty());
 
-        Sale sale = saleService.createSale();
-
         assertThrows(ProductNotFoundException.class,
-                () -> saleService.addProductToSale(sale, "999", 1)
+                () -> saleService.addProductToSale(1L, "999", 1)
         );
     }
 
     @Test
-    void finalizeSaleDecreasesTheProductStock() {
+    void finalizeSale_shouldDecreaseTheProductStock() {
         Product product = new Product();
         product.setBarcode("123");
         product.setName("Coca Cola");
         product.setPrice(new BigDecimal("100"));
         product.setStock(2);
 
+        Sale sale = new Sale();
+        sale.setId(1L);
+        sale.setTotal(BigDecimal.ZERO);
+
         when(productRepository.findByBarcode("123"))
                 .thenReturn(Optional.of(product));
+        when(saleRepository.findById(1L))
+                .thenReturn(Optional.of(sale));
+        when(saleRepository.save(any(Sale.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
-        Sale sale = saleService.createSale();
-
-        when(saleRepository.save(sale)).thenReturn(sale);
-
-        saleService.addProductToSale(sale, "123", 1);
-        saleService.finalizeSale(sale);
+        saleService.addProductToSale(sale.getId(), "123", 1);
+        saleService.finalizeSale(sale.getId());
 
         assertEquals(1, product.getStock());
     }
