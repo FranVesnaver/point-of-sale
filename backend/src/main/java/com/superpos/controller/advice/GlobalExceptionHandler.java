@@ -1,5 +1,6 @@
 package com.superpos.controller.advice;
 
+import com.superpos.exception.ExistingBarcodeException;
 import com.superpos.exception.InsufficientStockException;
 import com.superpos.exception.ProductNotFoundException;
 import com.superpos.exception.SaleNotFoundException;
@@ -41,6 +42,16 @@ public class GlobalExceptionHandler {
                 e.getMessage(),
                 "INSUFFICIENT_STOCK",
                 HttpStatus.BAD_REQUEST.value()
+        );
+    }
+
+    @ExceptionHandler(ExistingBarcodeException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleExistingBarcode(ExistingBarcodeException e) {
+        return new ErrorResponse(
+                e.getMessage(),
+                "EXISTING_BARCODE",
+                HttpStatus.CONFLICT.value()
         );
     }
 
