@@ -1,5 +1,6 @@
 package com.superpos.service;
 
+import com.superpos.exception.SaleNotFoundException;
 import com.superpos.model.Product;
 import com.superpos.model.Sale;
 import com.superpos.model.SaleItem;
@@ -7,10 +8,12 @@ import com.superpos.repository.ProductRepository;
 import com.superpos.repository.SaleRepository;
 import com.superpos.exception.InsufficientStockException;
 import com.superpos.exception.ProductNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class SaleService {
@@ -23,14 +26,22 @@ public class SaleService {
         this.saleRepository = saleRepository;
     }
 
+    public List<Sale> getSales() {
+        return saleRepository.findAll();
+    }
+
     public Sale createSale() {
         Sale sale = new Sale();
         sale.setDateTime(LocalDateTime.now());
         sale.setTotal(BigDecimal.ZERO);
-        return sale;
+        return saleRepository.save(sale);
     }
 
-    public void addProductToSale(Sale sale, String barcode, int quantity) {
+    public Sale addProductToSale(Long saleId, String barcode, int quantity) {
+        Sale sale = saleRepository.findById(saleId)
+                .orElseThrow(() -> new SaleNotFoundException(saleId));
+
+
         Product product = productRepository.findByBarcode(barcode)
                 .orElseThrow(() -> new ProductNotFoundException(barcode));
 
@@ -50,9 +61,15 @@ public class SaleService {
 
         sale.getItems().add(saleItem);
         sale.setTotal(sale.getTotal().add(subtotal));
+
+        return saleRepository.save(sale);
     }
 
-    public Sale finalizeSale(Sale sale) {
+    @Transactional
+    public Sale finalizeSale(Long saleId) {
+        Sale sale = saleRepository.findById(saleId)
+                .orElseThrow(() -> new SaleNotFoundException(saleId));
+
         // discount items from stock
         for (SaleItem item : sale.getItems()) {
             Product product = item.getProduct();

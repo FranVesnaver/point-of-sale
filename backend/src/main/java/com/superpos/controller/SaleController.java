@@ -3,9 +3,7 @@ package com.superpos.controller;
 import com.superpos.dto.AddItemRequest;
 import com.superpos.dto.SaleItemResponse;
 import com.superpos.dto.SaleResponse;
-import com.superpos.exception.SaleNotFoundException;
 import com.superpos.model.Sale;
-import com.superpos.repository.SaleRepository;
 import com.superpos.service.SaleService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -17,16 +15,14 @@ import java.util.List;
 public class SaleController {
 
     private final SaleService saleService;
-    private final SaleRepository saleRepository;
 
-    public SaleController(SaleService saleService, SaleRepository saleRepository) {
+    public SaleController(SaleService saleService) {
         this.saleService = saleService;
-        this.saleRepository = saleRepository;
     }
 
     @GetMapping
-    public List<SaleResponse> getAllSales() {
-        return saleRepository.findAll()
+    public List<SaleResponse> getSales() {
+        return saleService.getSales()
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -34,9 +30,8 @@ public class SaleController {
 
     @PostMapping
     public SaleResponse createSale() {
-        Sale sale = saleService.createSale();
-        Sale saved = saleRepository.save(sale);
-        return toResponse(saved);
+        Sale savedSale = saleService.createSale();
+        return toResponse(savedSale);
     }
 
     @PostMapping("/{saleId}/items")
@@ -45,13 +40,8 @@ public class SaleController {
             @Valid @RequestBody AddItemRequest request
             ) {
 
-        Sale sale = saleRepository.findById(saleId)
-                .orElseThrow(() -> new SaleNotFoundException(saleId));
-
-        saleService.addProductToSale(sale, request.getBarcode(), request.getQuantity());
-
-        Sale updated = saleRepository.save(sale);
-        return toResponse(updated);
+        Sale updatedSale = saleService.addProductToSale(saleId, request.getBarcode(), request.getQuantity());
+        return toResponse(updatedSale);
     }
 
     @PostMapping("/{saleId}/finalize")
@@ -59,11 +49,7 @@ public class SaleController {
             @PathVariable Long saleId
     ) {
 
-        Sale sale = saleRepository.findById(saleId)
-                .orElseThrow(() -> new SaleNotFoundException(saleId));
-
-        Sale finalizedSale = saleService.finalizeSale(sale);
-
+        Sale finalizedSale = saleService.finalizeSale(saleId);
         return toResponse(finalizedSale);
     }
 
