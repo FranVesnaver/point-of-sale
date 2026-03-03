@@ -44,6 +44,7 @@ public class ProductController {
 
     private ProductResponse toResponse(Product product) {
         ProductResponse response = new ProductResponse();
+        response.setId(product.getId());
         response.setName(product.getName());
         response.setStock(product.getStock());
         response.setBarcode(product.getBarcode());
