@@ -7,3 +7,11 @@ export async function getProducts() {
         method: 'GET',
     }, "Error getting products")
 }
+
+export async function addProduct(name, price, stock, barcode) {
+    return request(API_URL, {
+        method: 'POST',
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name, price, stock, barcode })
+    }, "Error adding product")
+}
