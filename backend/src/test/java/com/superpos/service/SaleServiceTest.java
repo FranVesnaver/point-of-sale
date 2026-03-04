@@ -5,7 +5,7 @@ import com.superpos.model.Sale;
 import com.superpos.repository.ProductRepository;
 import com.superpos.repository.SaleRepository;
 import com.superpos.exception.InsufficientStockException;
-import com.superpos.exception.ProductNotFoundException;
+import com.superpos.exception.ProductWithBarcodeNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -90,7 +90,7 @@ class SaleServiceTest {
         when(productRepository.findByBarcode("999"))
                 .thenReturn(Optional.empty());
 
-        assertThrows(ProductNotFoundException.class,
+        assertThrows(ProductWithBarcodeNotFoundException.class,
                 () -> saleService.addProductToSale(1L, "999", 1)
         );
     }

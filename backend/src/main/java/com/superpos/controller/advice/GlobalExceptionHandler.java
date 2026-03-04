@@ -1,9 +1,6 @@
 package com.superpos.controller.advice;
 
-import com.superpos.exception.ExistingBarcodeException;
-import com.superpos.exception.InsufficientStockException;
-import com.superpos.exception.ProductNotFoundException;
-import com.superpos.exception.SaleNotFoundException;
+import com.superpos.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +11,16 @@ import com.superpos.dto.error.ErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ProductWithBarcodeNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleProductWithBarcodeNotFound(ProductWithBarcodeNotFoundException e) {
+        return new ErrorResponse(
+                e.getMessage(),
+                "PRODUCT_WIRH_BARCODE_NOT_FOUND",
+                HttpStatus.NOT_FOUND.value()
+        );
+    }
 
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

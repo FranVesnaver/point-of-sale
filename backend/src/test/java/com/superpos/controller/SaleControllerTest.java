@@ -1,7 +1,7 @@
 package com.superpos.controller;
 
 import com.superpos.exception.InsufficientStockException;
-import com.superpos.exception.ProductNotFoundException;
+import com.superpos.exception.ProductWithBarcodeNotFoundException;
 import com.superpos.exception.SaleNotFoundException;
 import com.superpos.model.Product;
 import com.superpos.model.Sale;
@@ -99,7 +99,7 @@ class SaleControllerTest {
     @Test
     void addItem_shouldReturn404WhenProductNotFound() throws Exception {
 
-        doThrow(new ProductNotFoundException("123"))
+        doThrow(new ProductWithBarcodeNotFoundException("123"))
                 .when(saleService)
                 .addProductToSale(eq(1L), eq("123"), eq(1));
 

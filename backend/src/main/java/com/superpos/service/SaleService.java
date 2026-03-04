@@ -7,7 +7,7 @@ import com.superpos.model.SaleItem;
 import com.superpos.repository.ProductRepository;
 import com.superpos.repository.SaleRepository;
 import com.superpos.exception.InsufficientStockException;
-import com.superpos.exception.ProductNotFoundException;
+import com.superpos.exception.ProductWithBarcodeNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +43,7 @@ public class SaleService {
 
 
         Product product = productRepository.findByBarcode(barcode)
-                .orElseThrow(() -> new ProductNotFoundException(barcode));
+                .orElseThrow(() -> new ProductWithBarcodeNotFoundException(barcode));
 
         if (product.getStock() < quantity) {
             throw new InsufficientStockException(product.getName());
