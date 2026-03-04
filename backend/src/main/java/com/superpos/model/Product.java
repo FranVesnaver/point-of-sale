@@ -44,6 +44,6 @@ public class Product {
     private int stock;
 
     @Column(nullable = false)
-    private boolean active = false;
+    private boolean active = true;
 
 }
