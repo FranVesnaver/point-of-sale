@@ -7,6 +7,7 @@ import { Badge } from "./ui/badge.jsx"
 import { Search, Plus, Minus, Package, AlertTriangle, Edit2, Check, X } from "lucide-react"
 import { categories } from "../lib/sample-data"
 import { cn } from "../lib/utils"
+import { addProduct } from "../api/productsApi.js"
 
 export function InventoryView() {
     const { products, setProducts, updateProductStock } = usePOS()
@@ -17,6 +18,7 @@ export function InventoryView() {
     const [showAddProduct, setShowAddProduct] = useState(false)
     const [showEditProduct, setShowEditProduct] = useState(false)
     const [editingProduct, setEditingProduct] = useState(null)
+    const [isAddingProduct, setIsAddingProduct] = useState(false)
     const [newProduct, setNewProduct] = useState({
         name: "",
         price: 0,
@@ -43,28 +45,35 @@ export function InventoryView() {
         setEditStock("")
     }
 
-    const handleAddProduct = () => {
+    const handleAddProduct = async () => {
         if (!newProduct.name || !newProduct.price) return
+        setIsAddingProduct(true)
+        try {
+            const createdProduct = await addProduct(
+                newProduct.name,
+                newProduct.price,
+                newProduct.stock || 0,
+                newProduct.barcode
+            )
 
-        const product = {
-            id: String(Date.now()),
-            name: newProduct.name,
-            price: newProduct.price,
-            stock: newProduct.stock || 0,
-            category: newProduct.category || "Abarrotes",
-            lowStockThreshold: newProduct.lowStockThreshold || 10,
-            barcode: newProduct.barcode
+            setProducts(prev => [...prev, {
+                ...createdProduct,
+                category: createdProduct.category || newProduct.category || "Abarrotes",
+                lowStockThreshold: createdProduct.lowStockThreshold || newProduct.lowStockThreshold || 10
+            }])
+            setShowAddProduct(false)
+            setNewProduct({
+                name: "",
+                price: 0,
+                stock: 0,
+                category: "Abarrotes",
+                lowStockThreshold: 10
+            })
+        } catch (error) {
+            console.error("Error adding product:", error)
+        } finally {
+            setIsAddingProduct(false)
         }
-
-        setProducts([...products, product])
-        setShowAddProduct(false)
-        setNewProduct({
-            name: "",
-            price: 0,
-            stock: 0,
-            category: "Abarrotes",
-            lowStockThreshold: 10
-        })
     }
 
     const handleEditProduct = () => {
@@ -370,10 +379,10 @@ export function InventoryView() {
                             <Button
                                 className="w-full h-14 text-lg font-semibold mt-4"
                                 onClick={handleAddProduct}
-                                disabled={!newProduct.name || !newProduct.price}
+                                disabled={!newProduct.name || !newProduct.price || isAddingProduct}
                             >
                                 <Plus className="w-5 h-5 mr-2" />
-                                Agregar Producto
+                                {isAddingProduct ? "Agregando..." : "Agregar Producto"}
                             </Button>
                         </div>
                     </div>
