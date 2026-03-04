@@ -1,6 +1,7 @@
 package com.superpos.controller;
 
 import com.superpos.exception.ExistingBarcodeException;
+import com.superpos.exception.ProductNotFoundException;
 import com.superpos.model.Product;
 import com.superpos.service.ProductService;
 import org.junit.jupiter.api.Test;
@@ -13,10 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -79,7 +78,7 @@ class ProductControllerTest {
 
         doThrow(new ExistingBarcodeException("123"))
                 .when(productService)
-                .addProduct("123", "abc", BigDecimal.ONE, 10);
+                .addProduct(eq("123"), eq("abc"), eq(BigDecimal.ONE), eq(10));
 
         mockMvc.perform(post("/api/products")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,5 +92,60 @@ class ProductControllerTest {
                         """))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("EXISTING_BARCODE"));
+    }
+
+    @Test
+    void updateProduct_shouldReturn200AndProduct() throws Exception {
+        Product product = new Product();
+        product.setId(1L);
+        product.setBarcode("345");
+        product.setName("dfe");
+        product.setPrice(BigDecimal.TEN);
+        product.setStock(15);
+
+
+        when(productService.updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15))
+                .thenReturn(product);
+
+        mockMvc.perform(put("/api/products/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "barcode": "345",
+                            "name": "dfe",
+                            "price": 10,
+                            "stock": 15
+                        }
+                        """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.barcode").value("345"))
+                .andExpect(jsonPath("$.name").value("dfe"))
+                .andExpect(jsonPath("$.price").value(10))
+                .andExpect(jsonPath("$.stock").value(15));
+
+        verify(productService, times(1))
+                .updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15);
+    }
+
+    @Test
+    void updateProduct_return404WhenProductNotFound() throws Exception {
+
+        doThrow(new ProductNotFoundException(1L))
+                .when(productService)
+                .updateProduct(eq(1L), anyString(), anyString(), any(BigDecimal.class), anyInt());
+
+        mockMvc.perform(put("/api/products/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "barcode": "345",
+                            "name": "dfe",
+                            "price": 10,
+                            "stock": 15
+                        }
+                        """))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("PRODUCT_NOT_FOUND"));
     }
 }

@@ -1,6 +1,7 @@
 package com.superpos.service;
 
 import com.superpos.exception.ExistingBarcodeException;
+import com.superpos.exception.ProductNotFoundException;
 import com.superpos.model.Product;
 import com.superpos.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,19 @@ public class ProductService {
             throw new ExistingBarcodeException(barcode);
 
         Product product = new Product();
+        product.setBarcode(barcode);
+        product.setName(name);
+        product.setPrice(price);
+        product.setStock(stock);
+
+        return productRepository.save(product);
+    }
+
+    public Product updateProduct(Long productId, String barcode, String name, BigDecimal price, int stock) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+
         product.setBarcode(barcode);
         product.setName(name);
         product.setPrice(price);

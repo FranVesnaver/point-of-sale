@@ -2,6 +2,7 @@ package com.superpos.controller;
 
 import com.superpos.dto.AddProductRequest;
 import com.superpos.dto.ProductResponse;
+import com.superpos.dto.UpdateProductRequest;
 import com.superpos.model.Product;
 import com.superpos.service.ProductService;
 import jakarta.validation.Valid;
@@ -39,6 +40,22 @@ public class ProductController {
                 request.getStock()
         );
 
+        return toResponse(product);
+    }
+
+    @PutMapping("/{productId}")
+    public ProductResponse updateProduct(
+            @PathVariable Long productId,
+            @Valid @RequestBody UpdateProductRequest request
+            ) {
+
+        Product product = productService.updateProduct(
+                productId,
+                request.getBarcode(),
+                request.getName(),
+                request.getPrice(),
+                request.getStock()
+        );
         return toResponse(product);
     }
 
