@@ -112,7 +112,7 @@ class SaleControllerTest {
                         }
                         """))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("PRODUCT_NOT_FOUND"));
+                .andExpect(jsonPath("$.error").value("PRODUCT_WITH_BARCODE_NOT_FOUND"));
     }
 
     @Test
