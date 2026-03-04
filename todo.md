@@ -4,6 +4,7 @@
 - [ ] Chequear que los scanners de código de barra se integren bien
 - [ ] Restringir ciertas vistas a los empleados
 - [ ] Testear el front
+- [ ] Hacer que el mecanismo de añadir y buscar productos sea más versátil con el barcode
 
 ### Back
 - [ ] Terminar de testear el back
