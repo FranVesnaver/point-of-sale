@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleProductWithBarcodeNotFound(ProductWithBarcodeNotFoundException e) {
         return new ErrorResponse(
                 e.getMessage(),
-                "PRODUCT_WIRH_BARCODE_NOT_FOUND",
+                "PRODUCT_WITH_BARCODE_NOT_FOUND",
                 HttpStatus.NOT_FOUND.value()
         );
     }
