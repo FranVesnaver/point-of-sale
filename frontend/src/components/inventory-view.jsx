@@ -7,7 +7,7 @@ import { Badge } from "./ui/badge.jsx"
 import { Search, Plus, Minus, Package, AlertTriangle, Edit2, Check, X } from "lucide-react"
 import { categories } from "../lib/sample-data"
 import { cn } from "../lib/utils"
-import { addProduct } from "../api/productsApi.js"
+import { addProduct, updateProduct } from "../api/productsApi.js"
 
 export function InventoryView() {
     const { products, setProducts, updateProductStock } = usePOS()
@@ -18,6 +18,7 @@ export function InventoryView() {
     const [showAddProduct, setShowAddProduct] = useState(false)
     const [showEditProduct, setShowEditProduct] = useState(false)
     const [editingProduct, setEditingProduct] = useState(null)
+    const [isUpdatingProduct, setIsUpdatingProduct] = useState(false)
     const [isAddingProduct, setIsAddingProduct] = useState(false)
     const [newProduct, setNewProduct] = useState({
         name: "",
@@ -70,22 +71,37 @@ export function InventoryView() {
                 lowStockThreshold: 10
             })
         } catch (error) {
-            console.error("Error adding product:", error)
+            throw new Error("Error adding product: " + error)
         } finally {
             setIsAddingProduct(false)
         }
     }
 
-    const handleEditProduct = () => {
-        if (!editingProduct.name || !editingProduct.price) return
+    const handleEditProduct = async () => {
+        if (!editingProduct.name || !editingProduct.price) return;
 
-        const product = products.find(product => product.id === editingProduct.id)
-        products.splice(products.indexOf(product), 1)
+        setIsUpdatingProduct(true);
+        try {
+            const updatedProduct = await updateProduct(
+                editingProduct.id,
+                editingProduct.name,
+                editingProduct.price,
+                editingProduct.stock,
+                editingProduct.barcode
+            );
 
-        setProducts([...products, editingProduct])
+            setProducts(prev =>
+                prev.map(p => (p.id === updatedProduct.id) ? {...p, ...updatedProduct} : p)
+            );
 
-        setShowEditProduct(false)
-        setEditingProduct(null)
+            setShowEditProduct(false)
+            setEditingProduct(null)
+
+        } catch (error) {
+            throw new Error("Error updating product: " + error);
+        } finally {
+            setIsUpdatingProduct(false);
+        }
     }
 
     return (
@@ -483,10 +499,10 @@ export function InventoryView() {
                             <Button
                                 className="w-full h-14 text-lg font-semibold mt-4"
                                 onClick={handleEditProduct}
-                                disabled={!editingProduct.name || !editingProduct.price}
+                                disabled={!editingProduct.name || !editingProduct.price || isUpdatingProduct}
                             >
                                 <Edit2 className="w-5 h-5 mr-2" />
-                                Guardar Producto
+                                {isUpdatingProduct ? "Guardando..." : "Guardar Producto" }
                             </Button>
                         </div>
                     </div>
