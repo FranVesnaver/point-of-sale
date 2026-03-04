@@ -15,3 +15,11 @@ export async function addProduct(name, price, stock, barcode) {
         body: JSON.stringify({ name, price, stock, barcode })
     }, "Error adding product")
 }
+
+export async function updateProduct(productId, name, price, stock, barcode) {
+    return request(`${API_URL}/${productId}`, {
+        method: 'PUT',
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({name, price, stock, barcode})
+    }, "Error updating product")
+}
