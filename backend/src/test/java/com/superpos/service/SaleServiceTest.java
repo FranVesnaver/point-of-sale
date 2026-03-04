@@ -8,16 +8,18 @@ import com.superpos.exception.InsufficientStockException;
 import com.superpos.exception.ProductWithBarcodeNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +33,40 @@ class SaleServiceTest {
 
     @InjectMocks
     private SaleService saleService;
+
+    @Test
+    void createSale_shouldInitializeDateTimeAndTotalZero() {
+        when(saleRepository.save(any(Sale.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        LocalDateTime beforeCreation = LocalDateTime.now();
+        saleService.createSale();
+        LocalDateTime afterCreation = LocalDateTime.now();
+
+        ArgumentCaptor<Sale> saleCaptor = ArgumentCaptor.forClass(Sale.class);
+        verify(saleRepository).save(saleCaptor.capture());
+        Sale saleToSave = saleCaptor.getValue();
+
+        assertNotNull(saleToSave.getDateTime());
+        assertFalse(saleToSave.getDateTime().isBefore(beforeCreation));
+        assertFalse(saleToSave.getDateTime().isAfter(afterCreation));
+        assertEquals(BigDecimal.ZERO, saleToSave.getTotal());
+    }
+
+    @Test
+    void createSale_shouldReturnSavedSale() {
+        Sale savedSale = new Sale();
+        savedSale.setId(10L);
+        savedSale.setDateTime(LocalDateTime.now());
+        savedSale.setTotal(BigDecimal.ZERO);
+
+        when(saleRepository.save(any(Sale.class)))
+                .thenReturn(savedSale);
+
+        Sale result = saleService.createSale();
+
+        assertSame(savedSale, result);
+    }
 
     @Test
     void addProductToSale_shouldAddItemAndUpdateTotal() {
