@@ -5,6 +5,7 @@
 - [ ] Restringir ciertas vistas a los empleados
 - [ ] Testear el front
 - [ ] Hacer que el mecanismo de añadir y buscar productos sea más versátil con el barcode
+- [ ] Debbugear la view de historial de ventas
 
 ### Back
 - [ ] Terminar de testear el back
