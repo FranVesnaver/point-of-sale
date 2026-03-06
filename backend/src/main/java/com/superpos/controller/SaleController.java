@@ -70,6 +70,7 @@ public class SaleController {
         ).toList();
 
         response.setItems(items);
+        response.setDate(sale.getDateTime());
         return response;
     }
 }
