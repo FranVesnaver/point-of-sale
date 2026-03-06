@@ -3,7 +3,7 @@ import { usePOS } from "../lib/context"
 import { Card, CardContent } from "./ui/card.jsx"
 import { Input } from "./ui/input.jsx"
 import { Badge } from "./ui/badge.jsx"
-import { Search, Calendar, CreditCard, Banknote, Smartphone, ChevronDown, ChevronUp, DollarSign, ShoppingBag } from "lucide-react"
+import { Search, Calendar, CreditCard, Banknote, Smartphone, ChevronDown, ChevronUp, DollarSign, ShoppingBag, CircleQuestionMark } from "lucide-react"
 import { cn } from "../lib/utils"
 
 export function HistoryView() {
@@ -14,7 +14,7 @@ export function HistoryView() {
 
     const filteredTransactions = transactions.filter(transaction => {
         const matchesSearch = transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            transaction.items.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
+            transaction.items.some(item => item.productName.toLowerCase().includes(searchTerm.toLowerCase()))
         const matchesPayment = filterPayment === 'all' || transaction.paymentMethod === filterPayment
         return matchesSearch && matchesPayment
     })
@@ -30,6 +30,7 @@ export function HistoryView() {
             case 'cash': return Banknote
             case 'card': return CreditCard
             case 'transfer': return Smartphone
+            default: return CircleQuestionMark
         }
     }
 
@@ -38,6 +39,7 @@ export function HistoryView() {
             case 'cash': return 'Efectivo'
             case 'card': return 'Tarjeta'
             case 'transfer': return 'Transferencia'
+            default: return 'Otro'
         }
     }
 
@@ -170,7 +172,7 @@ export function HistoryView() {
                                                 </div>
                                                 <div>
                                                     <div className="flex items-center gap-2">
-                                                        <p className="font-semibold text-foreground">{transaction.id}</p>
+                                                        <p className="font-semibold text-foreground">Venta {transaction.id}</p>
                                                         <Badge variant="secondary" className="text-xs">
                                                             {getPaymentLabel(transaction.paymentMethod)}
                                                         </Badge>
@@ -198,8 +200,8 @@ export function HistoryView() {
                                         <div className="space-y-2">
                                             {transaction.items.map((item, index) => (
                                                 <div key={`${item.id}-${index}`} className="flex justify-between text-sm">
-                                                    <span className="text-foreground">{item.quantity}x {item.name}</span>
-                                                    <span className="font-medium text-foreground">${(item.price * item.quantity).toFixed(2)}</span>
+                                                    <span className="text-foreground">{item.quantity}x {item.productName}</span>
+                                                    <span className="font-medium text-foreground">${(item.unitPrice * item.quantity).toFixed(2)}</span>
                                                 </div>
                                             ))}
                                         </div>

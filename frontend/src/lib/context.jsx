@@ -9,6 +9,43 @@ export function ContextProvider({ children }) {
     const [cart, setCart] = useState([])
     const [transactions, setTransactions] = useState([])
 
+    const normalizeSaleItems = (saleItems) => {
+        return saleItems.map((saleItem) => {
+            return {
+                ...saleItem,
+                productName: String(saleItem.productName),
+                quantity: Number(saleItem.quantity),
+                unitPrice: Number(saleItem.unitPrice),
+                subtotal: Number(saleItem.subtotal)
+            }
+        });
+    }
+
+    const normalizeSales = (sales) => {
+        return sales.map((sale) => {
+            return {
+                ...sale,
+                id: String(sale.id),
+                total: Number(sale.total),
+                items: normalizeSaleItems(sale.items),
+                date: sale.date
+            }
+        });
+    }
+
+    const normalizeProducts = (products) => {
+        return products.map((product) => {
+            return {
+                ...product,
+                id: String(product.id),
+                name: String(product.name),
+                barcode: String(product.barcode),
+                price: Number(product.price),
+                stock: Number(product.stock)
+            };
+        });
+    }
+
     useEffect(() => {
         let active = true;
 
@@ -17,11 +54,11 @@ export function ContextProvider({ children }) {
                 const sales = await getSales();
                 const products = await getProducts();
                 if (active) {
-                    setTransactions(sales);
-                    setProducts(products);
+                    setTransactions(normalizeSales(sales));
+                    setProducts(normalizeProducts(products));
                 }
             } catch (e) {
-                console.error(e);
+                throw new Error(e);
             }
         })();
         return () => {
