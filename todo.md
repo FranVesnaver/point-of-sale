@@ -1,14 +1,15 @@
 ## TODO
 
 ### Front
-- [ ] Chequear que los scanners de código de barra se integren bien
 - [ ] Restringir ciertas vistas a los empleados
 - [ ] Testear el front
 - [ ] Hacer que el mecanismo de añadir y buscar productos sea más versátil con el barcode
-- [ ] Debbugear la view de historial de ventas
+- [ ] Debugear la view de historial de ventas
 
 ### Back
 - [ ] Terminar de testear el back
+- [ ] Agregar atributo de método de pago a las ventas
+- [ ] Agregar categorías para los productos
 
 ### Front y Back
 - [ ] Implementar sistema de login de usuarios, empleados y administradores
