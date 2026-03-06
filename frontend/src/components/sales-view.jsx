@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { usePOS } from "../lib/context"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx"
 import { Button } from "./ui/button.jsx"
@@ -7,6 +7,7 @@ import { Badge } from "./ui/badge.jsx"
 import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check } from "lucide-react"
 import { categories } from "../lib/sample-data"
 import { cn } from "../lib/utils"
+import { addItemToSale, createSale, finalizeSale } from "../api/salesApi"
 
 export function SalesView() {
     const { products, cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, addTransaction } = usePOS()
@@ -16,6 +17,14 @@ export function SalesView() {
     const [paymentMethod, setPaymentMethod] = useState('cash')
     const [cashReceived, setCashReceived] = useState("")
     const [showSuccess, setShowSuccess] = useState(false)
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+    const [paymentError, setPaymentError] = useState("")
+
+    useEffect(() => {
+        if (!showPayment) {
+            setPaymentError("")
+        }
+    }, [showPayment])
 
     const filteredProducts = products.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -24,24 +33,53 @@ export function SalesView() {
         return matchesSearch && matchesCategory
     })
 
-    const handlePayment = () => {
-        const transaction = {
-            id: `TRX${String(Date.now()).slice(-6)}`,
-            items: [...cart],
-            total: cartTotal,
-            paymentMethod,
-            date: new Date(),
-            ...(paymentMethod === 'cash' && {
-                cashReceived: Number.parseFloat(cashReceived),
-                change: Number.parseFloat(cashReceived) - cartTotal
-            })
+    const handlePayment = async () => {
+        if (cart.length === 0) return
+
+        const productsWithoutBarcode = cart.filter(item => !item.barcode)
+        if (productsWithoutBarcode.length > 0) {
+            setPaymentError("Todos los productos deben tener código de barras para venderse.")
+            return
         }
-        addTransaction(transaction)
-        clearCart()
-        setShowPayment(false)
-        setCashReceived("")
-        setShowSuccess(true)
-        setTimeout(() => setShowSuccess(false), 2000)
+
+        setIsProcessingPayment(true)
+        setPaymentError("")
+
+        try {
+            const sale = await createSale()
+
+            for (const item of cart) {
+                await addItemToSale(sale.id, item.barcode, item.quantity)
+            }
+
+            const finalizedSale = await finalizeSale(sale.id)
+
+            const backendTotal = Number.parseFloat(finalizedSale.total)
+            const total = Number.isNaN(backendTotal) ? cartTotal : backendTotal
+
+            const transaction = {
+                id: `TRX${finalizedSale.id}`,
+                items: [...cart],
+                total,
+                paymentMethod,
+                dateTime: new Date(),
+                ...(paymentMethod === 'cash' && {
+                    cashReceived: Number.parseFloat(cashReceived),
+                    change: Number.parseFloat(cashReceived) - total
+                })
+            }
+
+            addTransaction(transaction)
+            clearCart()
+            setShowPayment(false)
+            setCashReceived("")
+            setShowSuccess(true)
+            setTimeout(() => setShowSuccess(false), 2000)
+        } catch (error) {
+            setPaymentError(error instanceof Error ? error.message : "No se pudo completar la venta.")
+        } finally {
+            setIsProcessingPayment(false)
+        }
     }
 
     const change = paymentMethod === 'cash' && cashReceived
@@ -340,13 +378,22 @@ export function SalesView() {
                             </div>
                         )}
 
+                        {paymentError && (
+                            <div className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                                {paymentError}
+                            </div>
+                        )}
+
                         <Button
                             className="w-full h-14 text-lg font-semibold"
                             onClick={handlePayment}
-                            disabled={paymentMethod === 'cash' && (Number.parseFloat(cashReceived) || 0) < cartTotal}
+                            disabled={
+                                isProcessingPayment ||
+                                (paymentMethod === 'cash' && (Number.parseFloat(cashReceived) || 0) < cartTotal)
+                            }
                         >
                             <Check className="w-5 h-5 mr-2" />
-                            Confirmar Venta
+                            {isProcessingPayment ? "Procesando..." : "Confirmar Venta"}
                         </Button>
                     </div>
                 </div>
