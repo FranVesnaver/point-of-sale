@@ -24,7 +24,7 @@ export function InventoryView() {
         name: "",
         price: 0,
         stock: 0,
-        category: "Abarrotes",
+        category: "Varios",
         lowStockThreshold: 10
     })
 
@@ -59,7 +59,7 @@ export function InventoryView() {
 
             setProducts(prev => [...prev, {
                 ...createdProduct,
-                category: createdProduct.category || newProduct.category || "Abarrotes",
+                category: createdProduct.category || newProduct.category || "Varios",
                 lowStockThreshold: createdProduct.lowStockThreshold || newProduct.lowStockThreshold || 10
             }])
             setShowAddProduct(false)
@@ -67,7 +67,7 @@ export function InventoryView() {
                 name: "",
                 price: 0,
                 stock: 0,
-                category: "Abarrotes",
+                category: "Varios",
                 lowStockThreshold: 10
             })
         } catch (error) {
