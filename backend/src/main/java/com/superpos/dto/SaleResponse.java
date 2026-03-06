@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -13,5 +14,6 @@ public class SaleResponse {
     private Long id;
     private BigDecimal total;
     private List<SaleItemResponse> items;
+    private LocalDateTime date;
 
 }
