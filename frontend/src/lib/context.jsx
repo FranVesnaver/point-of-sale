@@ -66,18 +66,18 @@ export function ContextProvider({ children }) {
         }
     }, []);
 
-    const addToCart = (product) => {
+    const addToCart = (product, quantityToAdd = 1) => {
         setCart(prev => {
             const existing = prev.find(item => item.id === product.id)
             if (existing) {
-                if (existing.quantity >= product.stock) return prev
+                if (existing.quantity + quantityToAdd > product.stock) return prev
                 return prev.map(item =>
                     item.id === product.id
-                        ? { ...item, quantity: item.quantity + 1 }
+                        ? { ...item, quantity: item.quantity + quantityToAdd }
                         : item
                 )
             }
-            return [...prev, { ...product, quantity: 1 }]
+            return [...prev, { ...product, quantity: quantityToAdd }]
         })
     }
 

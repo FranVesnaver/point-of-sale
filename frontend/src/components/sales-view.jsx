@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx"
 import { Button } from "./ui/button.jsx"
 import { Input } from "./ui/input.jsx"
 import { Badge } from "./ui/badge.jsx"
-import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check } from "lucide-react"
+import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check, Hash, Barcode } from "lucide-react"
 import { categories } from "../lib/sample-data"
 import { cn } from "../lib/utils"
 import { addItemToSale, createSale, finalizeSale } from "../api/salesApi"
@@ -19,6 +19,8 @@ export function SalesView() {
     const [showSuccess, setShowSuccess] = useState(false)
     const [isProcessingPayment, setIsProcessingPayment] = useState(false)
     const [paymentError, setPaymentError] = useState("")
+    const [quantityToAdd, setQuantityToAdd] = useState(1)
+    const [barcodeScanned, setBarcodeScanned] = useState("")
 
     useEffect(() => {
         if (!showPayment) {
@@ -86,6 +88,24 @@ export function SalesView() {
         ? Number.parseFloat(cashReceived) - cartTotal
         : 0
 
+    const handleQuantityToAddChange = (value) => {
+        const parsedValue = Number.parseInt(value, 10)
+        if (Number.isNaN(parsedValue))
+            setQuantityToAdd(0)
+        else
+            setQuantityToAdd(parsedValue)
+    }
+
+    const handleBarcodeScanned = () => {
+        const productScanned = products.find((product) => product.barcode === barcodeScanned);
+        if (!productScanned) return;
+        if (Number.isNaN(quantityToAdd) || quantityToAdd === 0) return;
+
+        addToCart(productScanned, quantityToAdd);
+        setBarcodeScanned("");
+        setQuantityToAdd(1);
+    }
+
     return (
         <div className="h-full flex flex-col lg:flex-row gap-4">
             {/* Success Modal */}
@@ -103,6 +123,33 @@ export function SalesView() {
 
             {/* Products Section */}
             <div className="flex-1 flex flex-col min-h-0">
+                <div className="mb-4 grid grid-cols-[88px_minmax(0,1fr)] sm:grid-cols-[72px_minmax(0,1fr)] gap-3">
+                    <div className="relative w-full">
+                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            inputMode="numeric"
+                            value={quantityToAdd}
+                            onChange={(e) => handleQuantityToAddChange(e.target.value)}
+                            className="h-12 w-full pl-11 pr-2 text-sm bg-card border-border"
+                        />
+                    </div>
+                    <div className="relative min-w-0">
+                        <Barcode className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Escanear código de barras..."
+                            value={barcodeScanned}
+                            onChange={(e) => {
+                                setBarcodeScanned(e.target.value);
+                                handleBarcodeScanned();
+                            }}
+                            className="h-12 w-full pl-12 text-base bg-card border-border"
+                            autoFocus
+                        />
+                    </div>
+                </div>
+
                 {/* Search */}
                 <div className="mb-4">
                     <div className="relative">
