@@ -313,6 +313,17 @@ export function InventoryView() {
 
                         <div className="space-y-4">
                             <div>
+                                <label className="text-sm font-medium text-foreground mb-2 block">Código de Barras</label>
+                                <Input
+                                    value={newProduct.barcode || ""}
+                                    onChange={(e) => setNewProduct({...newProduct, barcode: e.target.value})}
+                                    placeholder="Ej: 7501234567890"
+                                    className="h-12"
+                                    autoFocus
+                                />
+                            </div>
+
+                            <div>
                                 <label className="text-sm font-medium text-foreground mb-2 block">Nombre del Producto *</label>
                                 <Input
                                     value={newProduct.name}
@@ -367,17 +378,6 @@ export function InventoryView() {
                                         </button>
                                     ))}
                                 </div>
-                            </div>
-
-                            <div>
-                                <label className="text-sm font-medium text-foreground mb-2 block">Código de Barras</label>
-                                <Input
-                                    value={newProduct.barcode || ""}
-                                    onChange={(e) => setNewProduct({...newProduct, barcode: e.target.value})}
-                                    placeholder="Ej: 7501234567890"
-                                    className="h-12"
-                                    autoFocus
-                                />
                             </div>
 
                             <div>
