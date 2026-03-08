@@ -3,8 +3,7 @@
 ### Front
 - [ ] Restringir ciertas vistas a los empleados
 - [ ] Testear el front
-- [ ] Hacer que el mecanismo de añadir y buscar productos sea más versátil con el barcode
-- [ ] Debugear la view de historial de ventas
+- [ ] Hacer más fácil el sumar al stock de productos ya agregados (ej. +50 unidades)
 
 ### Back
 - [ ] Terminar de testear el back
