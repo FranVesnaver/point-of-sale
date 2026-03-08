@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { usePOS } from "../lib/context"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx"
 import { Button } from "./ui/button.jsx"
@@ -27,6 +27,14 @@ export function SalesView() {
             setPaymentError("")
         }
     }, [showPayment])
+
+    const productsByBarcode = useMemo(() => {
+        const map = {}
+        for (const p of products) {
+            map[p.barcode] = p
+        }
+        return map
+    }, [products])
 
     const filteredProducts = products.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -96,8 +104,8 @@ export function SalesView() {
             setQuantityToAdd(parsedValue)
     }
 
-    const handleBarcodeScanned = () => {
-        const productScanned = products.find((product) => product.barcode === barcodeScanned);
+    const handleBarcodeScanned = (barcode) => {
+        const productScanned = productsByBarcode[barcode];
         if (!productScanned) return;
         if (Number.isNaN(quantityToAdd) || quantityToAdd === 0) return;
 
@@ -140,10 +148,10 @@ export function SalesView() {
                             type="text"
                             placeholder="Escanear código de barras..."
                             value={barcodeScanned}
-                            onChange={(e) => {
-                                setBarcodeScanned(e.target.value);
-                                handleBarcodeScanned();
-                            }}
+                            onChange={(e) => setBarcodeScanned(e.target.value)}
+                            onKeyDown={(e => {
+                                if (e.key === "Enter") handleBarcodeScanned(barcodeScanned);
+                            })}
                             className="h-12 w-full pl-12 text-base bg-card border-border"
                             autoFocus
                         />
