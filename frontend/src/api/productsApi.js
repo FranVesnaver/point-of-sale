@@ -1,6 +1,7 @@
 import { request } from "./apiUtils.js";
 
-const API_URL = "http://localhost:8080/api/products";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
+const API_URL = `${API_BASE_URL}/products`;
 
 export async function getProducts() {
     return request(API_URL, {

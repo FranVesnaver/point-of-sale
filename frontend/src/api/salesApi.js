@@ -1,6 +1,7 @@
-import {request} from "./apiUtils.js";
+import { request } from "./apiUtils.js";
 
-const API_URL = "http://localhost:8080/api/sales";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
+const API_URL = `${API_BASE_URL}/sales`;
 
 export async function getSales() {
     return request(API_URL, {
