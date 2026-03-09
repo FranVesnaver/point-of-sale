@@ -409,6 +409,7 @@ export function SalesView() {
                                     value={cashReceived}
                                     onChange={(e) => setCashReceived(e.target.value)}
                                     className="h-14 text-xl font-bold text-center"
+                                    autoFocus
                                 />
                                 {change > 0 && (
                                     <div className="mt-3 p-4 bg-accent rounded-xl text-center">
@@ -416,20 +417,6 @@ export function SalesView() {
                                         <p className="text-2xl font-bold text-accent-foreground">${change.toFixed(2)}</p>
                                     </div>
                                 )}
-
-                                {/* Quick amounts */}
-                                <div className="grid grid-cols-4 gap-2 mt-3">
-                                    {[5, 10, 20, 50].map((amount) => (
-                                        <Button
-                                            key={amount}
-                                            variant="outline"
-                                            onClick={() => setCashReceived(String(amount))}
-                                            className="h-10"
-                                        >
-                                            ${amount}
-                                        </Button>
-                                    ))}
-                                </div>
                             </div>
                         )}
 
