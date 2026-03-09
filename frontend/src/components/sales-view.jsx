@@ -64,18 +64,15 @@ export function SalesView() {
 
             const finalizedSale = await finalizeSale(sale.id)
 
-            const backendTotal = Number.parseFloat(finalizedSale.total)
-            const total = Number.isNaN(backendTotal) ? cartTotal : backendTotal
-
             const transaction = {
-                id: `TRX${finalizedSale.id}`,
-                items: [...cart],
-                total,
+                id: `${finalizedSale.id}`,
+                items: finalizedSale.items,
+                total: finalizedSale.total,
                 paymentMethod,
-                dateTime: new Date(),
+                date: finalizedSale.date,
                 ...(paymentMethod === 'cash' && {
                     cashReceived: Number.parseFloat(cashReceived),
-                    change: Number.parseFloat(cashReceived) - total
+                    change: Number.parseFloat(cashReceived) - finalizedSale.total
                 })
             }
 
