@@ -6,6 +6,7 @@ A Point of Sale software for managing sales and item stocks
 To run the full stack with frontend, backend and PostgreSQL:
 
 ```bash
+cp .env.example .env
 docker compose up --build
 ```
 
@@ -14,6 +15,15 @@ Services:
 - Frontend: http://localhost
 - Backend API: http://localhost:8080/api
 - PostgreSQL: localhost:5432
+
+Main Docker variables live in `.env`:
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `DB_PORT`
+- `BACKEND_PORT`
+- `FRONTEND_PORT`
+- `CORS_ALLOWED_ORIGINS`
 
 To stop everything:
 
