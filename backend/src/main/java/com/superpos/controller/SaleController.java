@@ -1,6 +1,7 @@
 package com.superpos.controller;
 
 import com.superpos.dto.AddItemRequest;
+import com.superpos.dto.FinalizeSaleRequest;
 import com.superpos.dto.SaleItemResponse;
 import com.superpos.dto.SaleResponse;
 import com.superpos.model.Sale;
@@ -46,10 +47,11 @@ public class SaleController {
 
     @PostMapping("/{saleId}/finalize")
     public SaleResponse finalizeSale(
-            @PathVariable Long saleId
+            @PathVariable Long saleId,
+            @Valid @RequestBody FinalizeSaleRequest request
     ) {
 
-        Sale finalizedSale = saleService.finalizeSale(saleId);
+        Sale finalizedSale = saleService.finalizeSale(saleId, request.getPaymentMethod());
         return toResponse(finalizedSale);
     }
 
@@ -71,6 +73,7 @@ public class SaleController {
 
         response.setItems(items);
         response.setDate(sale.getDateTime());
+        response.setPaymentMethod(sale.getPaymentMethod());
         return response;
     }
 }

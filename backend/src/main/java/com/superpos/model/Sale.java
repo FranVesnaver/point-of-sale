@@ -27,6 +27,10 @@ public class Sale {
     @Setter
     private BigDecimal total;
 
+    @Column(name = "payment_method", nullable = false)
+    @Setter
+    private PaymentMethod paymentMethod;
+
     @OneToMany(
             mappedBy = "sale",
             cascade = CascadeType.ALL,

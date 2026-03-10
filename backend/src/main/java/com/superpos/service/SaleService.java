@@ -1,6 +1,7 @@
 package com.superpos.service;
 
 import com.superpos.exception.SaleNotFoundException;
+import com.superpos.model.PaymentMethod;
 import com.superpos.model.Product;
 import com.superpos.model.Sale;
 import com.superpos.model.SaleItem;
@@ -66,7 +67,7 @@ public class SaleService {
     }
 
     @Transactional
-    public Sale finalizeSale(Long saleId) {
+    public Sale finalizeSale(Long saleId, PaymentMethod paymentMethod) {
         Sale sale = saleRepository.findById(saleId)
                 .orElseThrow(() -> new SaleNotFoundException(saleId));
 
@@ -75,6 +76,8 @@ public class SaleService {
             Product product = item.getProduct();
             product.setStock(product.getStock() - item.getQuantity());
         }
+
+        sale.setPaymentMethod(paymentMethod);
 
         return saleRepository.save(sale);
     }

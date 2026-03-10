@@ -1,5 +1,6 @@
 package com.superpos.dto;
 
+import com.superpos.model.PaymentMethod;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +15,7 @@ public class SaleResponse {
     private Long id;
     private BigDecimal total;
     private List<SaleItemResponse> items;
+    private PaymentMethod paymentMethod;
     private LocalDateTime date;
 
 }
