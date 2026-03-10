@@ -10,7 +10,7 @@ import { cn } from "../lib/utils"
 import { addItemToSale, createSale, finalizeSale } from "../api/salesApi"
 
 export function SalesView() {
-    const { products, cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, addTransaction } = usePOS()
+    const { products, cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, addTransaction, updateStockAfterTransaction } = usePOS()
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("Todos")
     const [showPayment, setShowPayment] = useState(false)
@@ -77,6 +77,7 @@ export function SalesView() {
             }
 
             addTransaction(transaction)
+            updateStockAfterTransaction(cart)
             clearCart()
             setShowPayment(false)
             setCashReceived("")

@@ -104,16 +104,20 @@ export function ContextProvider({ children }) {
 
     const addTransaction = (transaction) => {
         setTransactions(prev => [transaction, ...prev])
-        // Update stock
-        for (const item of transaction.items) {
-            setProducts(prev =>
-                prev.map(p =>
-                    p.id === item.id
-                        ? { ...p, stock: p.stock - item.quantity }
-                        : p
-                )
-            )
+    }
+
+    const updateStockAfterTransaction = (soldItems) => {
+        const quantitiesByBarcode = new Map()
+        for (const item of soldItems) {
+            quantitiesByBarcode.set(item.barcode, (quantitiesByBarcode.get(item.barcode) ?? 0) + item.quantity);
         }
+
+        setProducts(prev =>
+            prev.map(p => {
+                const qty = quantitiesByBarcode.get(p.barcode)
+                return qty ? { ...p, stock: p.stock - qty } : p
+            })
+        )
     }
 
     const updateProductStock = (productId, newStock) => {
@@ -137,6 +141,7 @@ export function ContextProvider({ children }) {
                 cartTotal,
                 transactions,
                 addTransaction,
+                updateStockAfterTransaction,
                 updateProductStock,
             }}
         >
