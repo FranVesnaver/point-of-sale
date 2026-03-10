@@ -35,6 +35,7 @@ public class SaleService {
         Sale sale = new Sale();
         sale.setDateTime(LocalDateTime.now());
         sale.setTotal(BigDecimal.ZERO);
+        sale.setPaymentMethod(PaymentMethod.CASH);
         return saleRepository.save(sale);
     }
 
