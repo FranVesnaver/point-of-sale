@@ -23,9 +23,10 @@ export async function addItemToSale(saleId, barcode, quantity = 1) {
     }, "Error adding item");
 }
 
-export async function finalizeSale(saleId) {
+export async function finalizeSale(saleId, paymentMethod) {
     return request(`${API_URL}/${saleId}/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentMethod }),
     }, "Error finalizing sale");
 }

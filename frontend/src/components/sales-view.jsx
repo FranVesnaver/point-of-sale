@@ -14,7 +14,7 @@ export function SalesView() {
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("Todos")
     const [showPayment, setShowPayment] = useState(false)
-    const [paymentMethod, setPaymentMethod] = useState('cash')
+    const [paymentMethod, setPaymentMethod] = useState("CASH")
     const [cashReceived, setCashReceived] = useState("")
     const [showSuccess, setShowSuccess] = useState(false)
     const [isProcessingPayment, setIsProcessingPayment] = useState(false)
@@ -62,7 +62,7 @@ export function SalesView() {
                 await addItemToSale(sale.id, item.barcode, item.quantity)
             }
 
-            const finalizedSale = await finalizeSale(sale.id)
+            const finalizedSale = await finalizeSale(sale.id, paymentMethod)
 
             const transaction = {
                 id: `${finalizedSale.id}`,
@@ -70,7 +70,7 @@ export function SalesView() {
                 total: finalizedSale.total,
                 paymentMethod,
                 date: finalizedSale.date,
-                ...(paymentMethod === 'cash' && {
+                ...(paymentMethod === "CASH" && {
                     cashReceived: Number.parseFloat(cashReceived),
                     change: Number.parseFloat(cashReceived) - finalizedSale.total
                 })
@@ -89,7 +89,7 @@ export function SalesView() {
         }
     }
 
-    const change = paymentMethod === 'cash' && cashReceived
+    const change = paymentMethod === "CASH" && cashReceived
         ? Number.parseFloat(cashReceived) - cartTotal
         : 0
 
@@ -357,47 +357,47 @@ export function SalesView() {
                         <div className="grid grid-cols-3 gap-3 mb-6">
                             <button
                                 type="button"
-                                onClick={() => setPaymentMethod('cash')}
+                                onClick={() => setPaymentMethod("CASH")}
                                 className={cn(
                                     "p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2",
-                                    paymentMethod === 'cash'
+                                    paymentMethod === "CASH"
                                         ? "border-primary bg-primary/10"
                                         : "border-border hover:border-primary/50"
                                 )}
                             >
-                                <Banknote className={cn("w-6 h-6", paymentMethod === 'cash' ? "text-primary" : "text-muted-foreground")} />
-                                <span className={cn("text-sm font-medium", paymentMethod === 'cash' ? "text-primary" : "text-foreground")}>Efectivo</span>
+                                <Banknote className={cn("w-6 h-6", paymentMethod === "CASH" ? "text-primary" : "text-muted-foreground")} />
+                                <span className={cn("text-sm font-medium", paymentMethod === "CASH" ? "text-primary" : "text-foreground")}>Efectivo</span>
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setPaymentMethod('card')}
+                                onClick={() => setPaymentMethod("CARD")}
                                 className={cn(
                                     "p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2",
-                                    paymentMethod === 'card'
+                                    paymentMethod === "CARD"
                                         ? "border-primary bg-primary/10"
                                         : "border-border hover:border-primary/50"
                                 )}
                             >
-                                <CreditCard className={cn("w-6 h-6", paymentMethod === 'card' ? "text-primary" : "text-muted-foreground")} />
-                                <span className={cn("text-sm font-medium", paymentMethod === 'card' ? "text-primary" : "text-foreground")}>Tarjeta</span>
+                                <CreditCard className={cn("w-6 h-6", paymentMethod === "CARD" ? "text-primary" : "text-muted-foreground")} />
+                                <span className={cn("text-sm font-medium", paymentMethod === "CARD" ? "text-primary" : "text-foreground")}>Tarjeta</span>
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setPaymentMethod('transfer')}
+                                onClick={() => setPaymentMethod("TRANSFER")}
                                 className={cn(
                                     "p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2",
-                                    paymentMethod === 'transfer'
+                                    paymentMethod === "TRANSFER"
                                         ? "border-primary bg-primary/10"
                                         : "border-border hover:border-primary/50"
                                 )}
                             >
-                                <Smartphone className={cn("w-6 h-6", paymentMethod === 'transfer' ? "text-primary" : "text-muted-foreground")} />
-                                <span className={cn("text-sm font-medium", paymentMethod === 'transfer' ? "text-primary" : "text-foreground")}>Transfer</span>
+                                <Smartphone className={cn("w-6 h-6", paymentMethod === "TRANSFER" ? "text-primary" : "text-muted-foreground")} />
+                                <span className={cn("text-sm font-medium", paymentMethod === "TRANSFER" ? "text-primary" : "text-foreground")}>Transfer</span>
                             </button>
                         </div>
 
                         {/* Cash Input */}
-                        {paymentMethod === 'cash' && (
+                        {paymentMethod === "CASH" && (
                             <div className="mb-6">
                                 <label className="text-sm font-medium text-foreground mb-2 block">Efectivo Recibido:</label>
                                 <Input
@@ -428,7 +428,7 @@ export function SalesView() {
                             onClick={handlePayment}
                             disabled={
                                 isProcessingPayment ||
-                                (paymentMethod === 'cash' && (Number.parseFloat(cashReceived) || 0) < cartTotal)
+                                (paymentMethod === "CASH" && (Number.parseFloat(cashReceived) || 0) < cartTotal)
                             }
                         >
                             <Check className="w-5 h-5 mr-2" />

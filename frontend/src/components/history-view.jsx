@@ -27,18 +27,18 @@ export function HistoryView() {
 
     const getPaymentIcon = (method) => {
         switch (method) {
-            case 'cash': return Banknote
-            case 'card': return CreditCard
-            case 'transfer': return Smartphone
+            case "CASH": return Banknote
+            case "CARD": return CreditCard
+            case "TRANSFER": return Smartphone
             default: return CircleQuestionMark
         }
     }
 
     const getPaymentLabel = (method) => {
         switch (method) {
-            case 'cash': return 'Efectivo'
-            case 'card': return 'Tarjeta'
-            case 'transfer': return 'Transferencia'
+            case "CASH": return 'Efectivo'
+            case "CARD": return 'Tarjeta'
+            case "TRANSFER": return 'Transferencia'
             default: return 'Otro'
         }
     }
@@ -121,9 +121,9 @@ export function HistoryView() {
                 <div className="flex gap-2 overflow-x-auto pb-2">
                     {[
                         { id: 'all', label: 'Todos' },
-                        { id: 'cash', label: 'Efectivo', icon: Banknote },
-                        { id: 'card', label: 'Tarjeta', icon: CreditCard },
-                        { id: 'transfer', label: 'Transfer', icon: Smartphone },
+                        { id: "CASH", label: 'Efectivo', icon: Banknote },
+                        { id: "CARD", label: 'Tarjeta', icon: CreditCard },
+                        { id: "TRANSFER", label: 'Transfer', icon: Smartphone },
                     ].map((filter) => (
                         <button
                             type="button"
@@ -210,7 +210,7 @@ export function HistoryView() {
                                                 <span className="text-muted-foreground">Subtotal</span>
                                                 <span className="font-medium text-foreground">${transaction.total.toFixed(2)}</span>
                                             </div>
-                                            {transaction.paymentMethod === 'cash' && transaction.cashReceived && (
+                                            {transaction.paymentMethod === "CASH" && transaction.cashReceived && (
                                                 <>
                                                     <div className="flex justify-between text-sm">
                                                         <span className="text-muted-foreground">Efectivo recibido</span>

@@ -28,6 +28,7 @@ export function ContextProvider({ children }) {
                 id: String(sale.id),
                 total: Number(sale.total),
                 items: normalizeSaleItems(sale.items),
+                paymentMethod: String(sale.paymentMethod),
                 date: sale.date
             }
         });
