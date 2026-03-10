@@ -3,6 +3,7 @@ package com.superpos.controller;
 import com.superpos.exception.InsufficientStockException;
 import com.superpos.exception.ProductWithBarcodeNotFoundException;
 import com.superpos.exception.SaleNotFoundException;
+import com.superpos.model.PaymentMethod;
 import com.superpos.model.Product;
 import com.superpos.model.Sale;
 import com.superpos.model.SaleItem;
@@ -179,13 +180,23 @@ class SaleControllerTest {
     void finalize_shouldReturn200AndSale() throws Exception {
         Sale sale = new Sale();
         sale.setId(1L);
+        sale.setTotal(BigDecimal.ONE);
+        sale.setPaymentMethod(PaymentMethod.CASH);
 
-        when(saleService.finalizeSale(1L))
+        when(saleService.finalizeSale(1L, PaymentMethod.CASH))
                 .thenReturn(sale);
 
-        mockMvc.perform(post("/api/sales/1/finalize"))
+        mockMvc.perform(post("/api/sales/1/finalize")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "paymentMethod": "CASH"
+                        }
+                        """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.total").value(BigDecimal.ONE))
+                .andExpect(jsonPath("$.paymentMethod").value("CASH"));
     }
 
     @Test
@@ -193,9 +204,15 @@ class SaleControllerTest {
 
         doThrow(new SaleNotFoundException(1L))
                 .when(saleService)
-                .finalizeSale(eq(1L));
+                .finalizeSale(eq(1L), eq(PaymentMethod.TRANSFER));
 
-        mockMvc.perform(post("/api/sales/1/finalize"))
+        mockMvc.perform(post("/api/sales/1/finalize")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "paymentMethod": "TRANSFER"
+                        }
+                        """))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("SALE_NOT_FOUND"));
     }

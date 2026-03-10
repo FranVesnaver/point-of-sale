@@ -1,5 +1,6 @@
 package com.superpos.service;
 
+import com.superpos.model.PaymentMethod;
 import com.superpos.model.Product;
 import com.superpos.model.Sale;
 import com.superpos.repository.ProductRepository;
@@ -151,7 +152,7 @@ class SaleServiceTest {
                 .thenAnswer(inv -> inv.getArgument(0));
 
         saleService.addProductToSale(sale.getId(), "123", 1);
-        saleService.finalizeSale(sale.getId());
+        saleService.finalizeSale(sale.getId(), PaymentMethod.CASH);
 
         assertEquals(1, product.getStock());
     }
