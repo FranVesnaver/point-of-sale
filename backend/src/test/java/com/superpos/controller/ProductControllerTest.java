@@ -55,7 +55,7 @@ class ProductControllerTest {
         product.setPrice(BigDecimal.ONE);
         product.setStock(10);
 
-        when(productService.addProduct("123", "abc", BigDecimal.ONE, 10))
+        when(productService.addProduct("123", "abc", BigDecimal.ONE, 10, 5))
                 .thenReturn(product);
 
         mockMvc.perform(post("/api/products")
@@ -65,7 +65,8 @@ class ProductControllerTest {
                             "barcode": "123",
                             "name": "abc",
                             "price": 1,
-                            "stock": 10
+                            "stock": 10,
+                            "minStock": 5
                         }
                         """))
                 .andExpect(status().isOk())
@@ -78,7 +79,7 @@ class ProductControllerTest {
 
         doThrow(new ExistingBarcodeException("123"))
                 .when(productService)
-                .addProduct(eq("123"), eq("abc"), eq(BigDecimal.ONE), eq(10));
+                .addProduct(eq("123"), eq("abc"), eq(BigDecimal.ONE), eq(10), eq(10));
 
         mockMvc.perform(post("/api/products")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -87,7 +88,8 @@ class ProductControllerTest {
                             "barcode": "123",
                             "name": "abc",
                             "price": 1,
-                            "stock": 10
+                            "stock": 10,
+                            "minStock": 10
                         }
                         """))
                 .andExpect(status().isConflict())
@@ -102,9 +104,9 @@ class ProductControllerTest {
         product.setName("dfe");
         product.setPrice(BigDecimal.TEN);
         product.setStock(15);
+        product.setMinStock(5);
 
-
-        when(productService.updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15))
+        when(productService.updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15, 5))
                 .thenReturn(product);
 
         mockMvc.perform(put("/api/products/1")
@@ -114,7 +116,8 @@ class ProductControllerTest {
                             "barcode": "345",
                             "name": "dfe",
                             "price": 10,
-                            "stock": 15
+                            "stock": 15,
+                            "minStock": 5
                         }
                         """))
                 .andExpect(status().isOk())
@@ -122,10 +125,11 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.barcode").value("345"))
                 .andExpect(jsonPath("$.name").value("dfe"))
                 .andExpect(jsonPath("$.price").value(10))
-                .andExpect(jsonPath("$.stock").value(15));
+                .andExpect(jsonPath("$.stock").value(15))
+                .andExpect(jsonPath("$.minStock").value(5));
 
         verify(productService, times(1))
-                .updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15);
+                .updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15, 5);
     }
 
     @Test
@@ -133,7 +137,7 @@ class ProductControllerTest {
 
         doThrow(new ProductNotFoundException(1L))
                 .when(productService)
-                .updateProduct(eq(1L), anyString(), anyString(), any(BigDecimal.class), anyInt());
+                .updateProduct(eq(1L), anyString(), anyString(), any(BigDecimal.class), anyInt(), anyInt());
 
         mockMvc.perform(put("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -142,7 +146,8 @@ class ProductControllerTest {
                             "barcode": "345",
                             "name": "dfe",
                             "price": 10,
-                            "stock": 15
+                            "stock": 15,
+                            "minStock": 5
                         }
                         """))
                 .andExpect(status().isNotFound())
