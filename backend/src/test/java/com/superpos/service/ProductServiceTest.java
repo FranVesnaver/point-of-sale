@@ -2,6 +2,7 @@ package com.superpos.service;
 
 import com.superpos.exception.ExistingBarcodeException;
 import com.superpos.exception.ProductNotFoundException;
+import com.superpos.model.Category;
 import com.superpos.model.Product;
 import com.superpos.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,8 @@ class ProductServiceTest {
                 "abc",
                 BigDecimal.ONE,
                 10,
-                5
+                5,
+                Category.OTHER
         );
 
         assertEquals("123", result.getBarcode());
@@ -49,6 +51,7 @@ class ProductServiceTest {
         assertEquals(BigDecimal.ONE, result.getPrice());
         assertEquals(10, result.getStock());
         assertEquals(5, result.getMinStock());
+        assertEquals(Category.OTHER, result.getCategory());
 
         verify(productRepository).existsByBarcode("123");
         verify(productRepository).save(any(Product.class));
@@ -66,7 +69,8 @@ class ProductServiceTest {
                         "dfe",
                         BigDecimal.TEN,
                         15,
-                        5
+                        5,
+                        Category.OTHER
                 )
         );
 
@@ -82,6 +86,7 @@ class ProductServiceTest {
         product.setPrice(BigDecimal.ONE);
         product.setStock(10);
         product.setMinStock(5);
+        product.setCategory(Category.OTHER);
 
         Product expectedUpdatedProduct = new Product();
         expectedUpdatedProduct.setId(1L);
@@ -90,13 +95,14 @@ class ProductServiceTest {
         expectedUpdatedProduct.setPrice(BigDecimal.TEN);
         expectedUpdatedProduct.setStock(15);
         expectedUpdatedProduct.setMinStock(10);
+        expectedUpdatedProduct.setCategory(Category.BAKERY);
 
         when(productRepository.findById(1L))
                 .thenReturn(Optional.of(product));
         when(productRepository.save(any(Product.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
 
-        Product actualUpdatedProduct = productService.updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15, 10);
+        Product actualUpdatedProduct = productService.updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15, 10, Category.BAKERY);
 
         assertEquals(expectedUpdatedProduct, actualUpdatedProduct);
     }
@@ -107,6 +113,6 @@ class ProductServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(ProductNotFoundException.class,
-                () -> productService.updateProduct(1L, "123", "abc", BigDecimal.ONE, 10, 5));
+                () -> productService.updateProduct(1L, "123", "abc", BigDecimal.ONE, 10, 5, Category.OTHER));
     }
 }

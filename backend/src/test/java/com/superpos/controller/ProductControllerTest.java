@@ -2,6 +2,7 @@ package com.superpos.controller;
 
 import com.superpos.exception.ExistingBarcodeException;
 import com.superpos.exception.ProductNotFoundException;
+import com.superpos.model.Category;
 import com.superpos.model.Product;
 import com.superpos.service.ProductService;
 import org.junit.jupiter.api.Test;
@@ -54,8 +55,9 @@ class ProductControllerTest {
         product.setName("abc");
         product.setPrice(BigDecimal.ONE);
         product.setStock(10);
+        product.setCategory(Category.OTHER);
 
-        when(productService.addProduct("123", "abc", BigDecimal.ONE, 10, 5))
+        when(productService.addProduct("123", "abc", BigDecimal.ONE, 10, 5, Category.OTHER))
                 .thenReturn(product);
 
         mockMvc.perform(post("/api/products")
@@ -66,7 +68,8 @@ class ProductControllerTest {
                             "name": "abc",
                             "price": 1,
                             "stock": 10,
-                            "minStock": 5
+                            "minStock": 5,
+                            "category": "OTHER"
                         }
                         """))
                 .andExpect(status().isOk())
@@ -79,7 +82,7 @@ class ProductControllerTest {
 
         doThrow(new ExistingBarcodeException("123"))
                 .when(productService)
-                .addProduct(eq("123"), eq("abc"), eq(BigDecimal.ONE), eq(10), eq(10));
+                .addProduct(eq("123"), eq("abc"), eq(BigDecimal.ONE), eq(10), eq(10), eq(Category.OTHER));
 
         mockMvc.perform(post("/api/products")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -89,7 +92,8 @@ class ProductControllerTest {
                             "name": "abc",
                             "price": 1,
                             "stock": 10,
-                            "minStock": 10
+                            "minStock": 10,
+                            "category": "OTHER"
                         }
                         """))
                 .andExpect(status().isConflict())
@@ -105,8 +109,9 @@ class ProductControllerTest {
         product.setPrice(BigDecimal.TEN);
         product.setStock(15);
         product.setMinStock(5);
+        product.setCategory(Category.OTHER);
 
-        when(productService.updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15, 5))
+        when(productService.updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15, 5, Category.OTHER))
                 .thenReturn(product);
 
         mockMvc.perform(put("/api/products/1")
@@ -117,7 +122,8 @@ class ProductControllerTest {
                             "name": "dfe",
                             "price": 10,
                             "stock": 15,
-                            "minStock": 5
+                            "minStock": 5,
+                            "category": "OTHER"
                         }
                         """))
                 .andExpect(status().isOk())
@@ -126,10 +132,11 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.name").value("dfe"))
                 .andExpect(jsonPath("$.price").value(10))
                 .andExpect(jsonPath("$.stock").value(15))
-                .andExpect(jsonPath("$.minStock").value(5));
+                .andExpect(jsonPath("$.minStock").value(5))
+                .andExpect(jsonPath("$.category").value("OTHER"));
 
         verify(productService, times(1))
-                .updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15, 5);
+                .updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15, 5, Category.OTHER);
     }
 
     @Test
@@ -137,7 +144,7 @@ class ProductControllerTest {
 
         doThrow(new ProductNotFoundException(1L))
                 .when(productService)
-                .updateProduct(eq(1L), anyString(), anyString(), any(BigDecimal.class), anyInt(), anyInt());
+                .updateProduct(eq(1L), anyString(), anyString(), any(BigDecimal.class), anyInt(), anyInt(), any(Category.class));
 
         mockMvc.perform(put("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -147,7 +154,8 @@ class ProductControllerTest {
                             "name": "dfe",
                             "price": 10,
                             "stock": 15,
-                            "minStock": 5
+                            "minStock": 5,
+                            "category": "OTHER"
                         }
                         """))
                 .andExpect(status().isNotFound())
