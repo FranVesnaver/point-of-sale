@@ -47,6 +47,10 @@ public class Product {
     @Column(name = "min_stock",nullable = false)
     private int minStock;
 
+    @NotNull
+    @Column(nullable = false)
+    private Category category;
+
     @Column(nullable = false)
     private boolean active = true;
 

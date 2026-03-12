@@ -1,5 +1,6 @@
 package com.superpos.dto;
 
+import com.superpos.model.Category;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -28,5 +29,8 @@ public class AddProductRequest {
 
     @NotBlank
     private String barcode;
+
+    @NotNull
+    private Category category;
 
 }

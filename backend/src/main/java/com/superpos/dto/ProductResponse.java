@@ -1,5 +1,6 @@
 package com.superpos.dto;
 
+import com.superpos.model.Category;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,5 +16,6 @@ public class ProductResponse {
     private BigDecimal price;
     private int stock;
     private int minStock;
+    private Category category;
 
 }
