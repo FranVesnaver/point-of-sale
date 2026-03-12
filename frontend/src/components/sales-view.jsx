@@ -11,7 +11,7 @@ import { addItemToSale, createSale, finalizeSale } from "../api/salesApi"
 export function SalesView() {
     const { products, cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, addTransaction, updateStockAfterTransaction, categories } = usePOS()
     const [searchTerm, setSearchTerm] = useState("")
-    const [selectedCategory, setSelectedCategory] = useState("Todos")
+    const [selectedCategory, setSelectedCategory] = useState("ALL")
     const [showPayment, setShowPayment] = useState(false)
     const [paymentMethod, setPaymentMethod] = useState("CASH")
     const [cashReceived, setCashReceived] = useState("")
@@ -38,7 +38,7 @@ export function SalesView() {
     const filteredProducts = products.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             product.barcode?.includes(searchTerm)
-        const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory
+        const matchesCategory = selectedCategory === "ALL" || product.category === selectedCategory
         return matchesSearch && matchesCategory
     })
 
@@ -171,7 +171,7 @@ export function SalesView() {
 
                 {/* Categories */}
                 <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
-                    {categories.map((category) => (
+                    {categories.keys().map((category) => (
                         <button
                             type="button"
                             key={category}
@@ -183,7 +183,7 @@ export function SalesView() {
                                     : "bg-card text-muted-foreground border border-border hover:border-primary hover:text-primary"
                             )}
                         >
-                            {category}
+                            {categories.get(category)}
                         </button>
                     ))}
                 </div>
@@ -211,7 +211,7 @@ export function SalesView() {
                                 >
                                     <div className="flex justify-between items-start mb-2">
                                         <Badge variant="secondary" className="text-xs">
-                                            {product.category}
+                                            {categories.get(product.category)}
                                         </Badge>
                                         {inCart && (
                                             <Badge className="bg-primary text-primary-foreground">

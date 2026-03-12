@@ -9,7 +9,15 @@ export function ContextProvider({ children }) {
     const [cart, setCart] = useState([])
     const [transactions, setTransactions] = useState([])
 
-    const categories = ['Todos', 'Lácteos', 'Panadería', 'Varios', 'Bebidas', 'Higiene', 'Snacks']
+    const categories = new Map([
+        ["ALL", "Todos"],
+        ["DAIRY", "Lácteos"],
+        ["BAKERY", "Panadería"],
+        ["OTHER", "Varios"],
+        ["BREWERY", "Bebidas"],
+        ["HYGIENE", "Higiene"],
+        ["SNACKS", "Snacks"]
+    ]);
 
     const normalizeSaleItems = (saleItems) => {
         return saleItems.map((saleItem) => {
@@ -45,7 +53,8 @@ export function ContextProvider({ children }) {
                 barcode: String(product.barcode),
                 price: Number(product.price),
                 stock: Number(product.stock),
-                minStock: Number(product.minStock)
+                minStock: Number(product.minStock),
+                category: String(product.category),
             };
         });
     }

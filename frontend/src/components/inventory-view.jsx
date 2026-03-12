@@ -11,7 +11,7 @@ import { addProduct, updateProduct } from "../api/productsApi.js"
 export function InventoryView() {
     const { products, setProducts, updateProductStock, categories } = usePOS()
     const [searchTerm, setSearchTerm] = useState("")
-    const [selectedCategory, setSelectedCategory] = useState("Todos")
+    const [selectedCategory, setSelectedCategory] = useState("ALL")
     const [editingProductStock, setEditingProductStock] = useState(null)
     const [editStock, setEditStock] = useState("")
     const [showAddProduct, setShowAddProduct] = useState(false)
@@ -23,14 +23,14 @@ export function InventoryView() {
         name: "",
         price: 0,
         stock: 0,
-        category: "Varios",
+        category: "OTHER",
         minStock: 10
     })
 
     const filteredProducts = products.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             product.barcode?.includes(searchTerm)
-        const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory
+        const matchesCategory = selectedCategory === "ALL" || product.category === selectedCategory
         return matchesSearch && matchesCategory
     })
 
@@ -56,12 +56,13 @@ export function InventoryView() {
                 newProduct.price,
                 newProduct.stock,
                 newProduct.minStock,
-                newProduct.barcode
+                newProduct.barcode,
+                newProduct.category
             );
 
             setProducts(prev => [...prev, {
                 ...createdProduct,
-                category: createdProduct.category || newProduct.category || "Varios",
+                category: createdProduct.category || newProduct.category || "OTHER",
             }]);
 
             setShowAddProduct(false);
@@ -69,7 +70,7 @@ export function InventoryView() {
                 name: "",
                 price: 0,
                 stock: 0,
-                category: "Varios",
+                category: "OTHER",
                 minStock: 10
             });
 
@@ -91,7 +92,8 @@ export function InventoryView() {
                 editingProduct.price,
                 editingProduct.stock,
                 editingProduct.minStock,
-                editingProduct.barcode
+                editingProduct.barcode,
+                editingProduct.category
             );
 
             setProducts(prev =>
@@ -165,7 +167,7 @@ export function InventoryView() {
                     />
                 </div>
                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                    {categories.map((category) => (
+                    {categories.keys().map((category) => (
                         <button
                             type="button"
                             key={category}
@@ -177,7 +179,7 @@ export function InventoryView() {
                                     : "bg-card text-muted-foreground border border-border hover:border-primary hover:text-primary"
                             )}
                         >
-                            {category}
+                            {categories.get(category)}
                         </button>
                     ))}
                 </div>
@@ -197,7 +199,7 @@ export function InventoryView() {
                                         <div className="flex items-center gap-2 mb-1">
                                             <h3 className="font-semibold text-foreground truncate">{product.name}</h3>
                                             <Badge variant="secondary" className="text-xs shrink-0">
-                                                {product.category}
+                                                {categories.get(product.category)}
                                             </Badge>
                                             <Button
                                                 variant="ghost"
@@ -366,7 +368,7 @@ export function InventoryView() {
                             <div>
                                 <label className="text-sm font-medium text-foreground mb-2 block">Categoría</label>
                                 <div className="grid grid-cols-3 gap-2">
-                                    {categories.filter(c => c !== "Todos").map((category) => (
+                                    {categories.keys().filter(c => c !== "ALL").map((category) => (
                                         <button
                                             type="button"
                                             key={category}
@@ -378,7 +380,7 @@ export function InventoryView() {
                                                     : "bg-secondary text-foreground hover:bg-secondary/80"
                                             )}
                                         >
-                                            {category}
+                                            {categories.get(category)}
                                         </button>
                                     ))}
                                 </div>
@@ -460,7 +462,7 @@ export function InventoryView() {
                             <div>
                                 <label className="text-sm font-medium text-foreground mb-2 block">Categoría</label>
                                 <div className="grid grid-cols-3 gap-2">
-                                    {categories.filter(c => c !== "Todos").map((category) => (
+                                    {categories.keys().filter(c => c !== "ALL").map((category) => (
                                         <button
                                             type="button"
                                             key={category}
@@ -472,7 +474,7 @@ export function InventoryView() {
                                                     : "bg-secondary text-foreground hover:bg-secondary/80"
                                             )}
                                         >
-                                            {category}
+                                            {categories.get(category)}
                                         </button>
                                     ))}
                                 </div>
