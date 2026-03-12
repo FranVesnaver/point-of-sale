@@ -14,5 +14,6 @@ public class ProductResponse {
     private String barcode;
     private BigDecimal price;
     private int stock;
+    private int minStock;
 
 }

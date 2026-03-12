@@ -23,6 +23,9 @@ public class AddProductRequest {
     @Min(0)
     private int stock;
 
+    @Min(0)
+    private int minStock;
+
     @NotBlank
     private String barcode;
 

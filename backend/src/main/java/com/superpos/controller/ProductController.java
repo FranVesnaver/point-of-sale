@@ -37,7 +37,8 @@ public class ProductController {
                 request.getBarcode(),
                 request.getName(),
                 request.getPrice(),
-                request.getStock()
+                request.getStock(),
+                request.getMinStock()
         );
 
         return toResponse(product);
@@ -54,7 +55,8 @@ public class ProductController {
                 request.getBarcode(),
                 request.getName(),
                 request.getPrice(),
-                request.getStock()
+                request.getStock(),
+                request.getMinStock()
         );
         return toResponse(product);
     }
@@ -64,6 +66,7 @@ public class ProductController {
         response.setId(product.getId());
         response.setName(product.getName());
         response.setStock(product.getStock());
+        response.setMinStock(product.getMinStock());
         response.setBarcode(product.getBarcode());
         response.setPrice(product.getPrice());
         return response;

@@ -26,7 +26,8 @@ public class ProductService {
             String barcode,
             String name,
             BigDecimal price,
-            int stock
+            int stock,
+            int minStock
     ) {
         if (productRepository.existsByBarcode(barcode))
             throw new ExistingBarcodeException(barcode);
@@ -36,11 +37,12 @@ public class ProductService {
         product.setName(name);
         product.setPrice(price);
         product.setStock(stock);
+        product.setMinStock(minStock);
 
         return productRepository.save(product);
     }
 
-    public Product updateProduct(Long productId, String barcode, String name, BigDecimal price, int stock) {
+    public Product updateProduct(Long productId, String barcode, String name, BigDecimal price, int stock, int minStock) {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
@@ -49,6 +51,7 @@ public class ProductService {
         product.setName(name);
         product.setPrice(price);
         product.setStock(stock);
+        product.setMinStock(minStock);
 
         return productRepository.save(product);
     }
