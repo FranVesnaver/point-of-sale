@@ -7,7 +7,6 @@
 
 ### Back
 - [ ] Terminar de testear el back
-- [ ] Agregar atributo de método de pago a las ventas
 - [ ] Agregar categorías para los productos
 
 ### Front y Back
