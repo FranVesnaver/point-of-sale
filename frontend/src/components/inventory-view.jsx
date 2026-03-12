@@ -25,7 +25,7 @@ export function InventoryView() {
         price: 0,
         stock: 0,
         category: "Varios",
-        lowStockThreshold: 10
+        minStock: 10
     })
 
     const filteredProducts = products.filter(product => {
@@ -35,7 +35,7 @@ export function InventoryView() {
         return matchesSearch && matchesCategory
     })
 
-    const lowStockCount = products.filter(p => p.stock <= p.lowStockThreshold).length
+    const lowStockCount = products.filter(p => p.stock <= p.minStock).length
 
     const handleSaveStock = (productId) => {
         const newStockValue = Number.parseInt(editStock)
@@ -47,33 +47,37 @@ export function InventoryView() {
     }
 
     const handleAddProduct = async () => {
-        if (!newProduct.name || !newProduct.price) return
-        setIsAddingProduct(true)
+        if (!newProduct.name || !newProduct.price) return;
+
+        setIsAddingProduct(true);
+
         try {
             const createdProduct = await addProduct(
                 newProduct.name,
                 newProduct.price,
-                newProduct.stock || 0,
+                newProduct.stock,
+                newProduct.minStock,
                 newProduct.barcode
-            )
+            );
 
             setProducts(prev => [...prev, {
                 ...createdProduct,
                 category: createdProduct.category || newProduct.category || "Varios",
-                lowStockThreshold: createdProduct.lowStockThreshold || newProduct.lowStockThreshold || 10
-            }])
-            setShowAddProduct(false)
+            }]);
+
+            setShowAddProduct(false);
             setNewProduct({
                 name: "",
                 price: 0,
                 stock: 0,
                 category: "Varios",
-                lowStockThreshold: 10
-            })
+                minStock: 10
+            });
+
         } catch (error) {
-            throw new Error("Error adding product: " + error)
+            throw new Error("Error adding product: " + error);
         } finally {
-            setIsAddingProduct(false)
+            setIsAddingProduct(false);
         }
     }
 
@@ -87,15 +91,16 @@ export function InventoryView() {
                 editingProduct.name,
                 editingProduct.price,
                 editingProduct.stock,
+                editingProduct.minStock,
                 editingProduct.barcode
             );
 
             setProducts(prev =>
-                prev.map(p => (p.id === updatedProduct.id) ? {...p, ...updatedProduct} : p)
+                prev.map(p => (Number(p.id) === updatedProduct.id) ? {...p, ...updatedProduct} : p)
             );
 
-            setShowEditProduct(false)
-            setEditingProduct(null)
+            setShowEditProduct(false);
+            setEditingProduct(null);
 
         } catch (error) {
             throw new Error("Error updating product: " + error);
@@ -182,7 +187,7 @@ export function InventoryView() {
             {/* Products List */}
             <div className="space-y-3">
                 {filteredProducts.map((product) => {
-                    const isLowStock = product.stock <= product.lowStockThreshold
+                    const isLowStock = product.stock <= product.minStock
                     const isEditingStock = editingProductStock === product.id
 
                     return (
@@ -289,7 +294,7 @@ export function InventoryView() {
                                         )}
                                         {isLowStock && (
                                             <Badge variant="destructive" className="text-xs">
-                                                Stock bajo (mín: {product.lowStockThreshold})
+                                                Stock bajo (mín: {product.minStock})
                                             </Badge>
                                         )}
                                     </div>
@@ -384,8 +389,8 @@ export function InventoryView() {
                                 <label className="text-sm font-medium text-foreground mb-2 block">Alerta Stock Mínimo</label>
                                 <Input
                                     type="number"
-                                    value={newProduct.lowStockThreshold || ""}
-                                    onChange={(e) => setNewProduct({...newProduct, lowStockThreshold: Number.parseInt(e.target.value)})}
+                                    value={newProduct.minStock || ""}
+                                    onChange={(e) => setNewProduct({...newProduct, minStock: Number.parseInt(e.target.value)})}
                                     placeholder="10"
                                     className="h-12"
                                     min="1"
@@ -488,8 +493,8 @@ export function InventoryView() {
                                 <label className="text-sm font-medium text-foreground mb-2 block">Alerta Stock Mínimo</label>
                                 <Input
                                     type="number"
-                                    value={editingProduct.lowStockThreshold || ""}
-                                    onChange={(e) => setEditingProduct({...editingProduct, lowStockThreshold: Number.parseInt(e.target.value)})}
+                                    value={editingProduct.minStock || ""}
+                                    onChange={(e) => setEditingProduct({...editingProduct, minStock: Number.parseInt(e.target.value)})}
                                     placeholder="10"
                                     className="h-12"
                                     min="1"

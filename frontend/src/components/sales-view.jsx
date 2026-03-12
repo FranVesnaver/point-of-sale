@@ -224,7 +224,7 @@ export function SalesView() {
                                     <p className="text-lg font-bold text-primary">${product.price.toFixed(2)}</p>
                                     <p className={cn(
                                         "text-xs mt-1",
-                                        product.stock <= product.lowStockThreshold ? "text-destructive" : "text-muted-foreground"
+                                        product.stock <= product.minStock ? "text-destructive" : "text-muted-foreground"
                                     )}>
                                         {isOutOfStock ? "Sin stock" : `${product.stock} disponibles`}
                                     </p>

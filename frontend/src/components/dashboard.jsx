@@ -10,7 +10,7 @@ function Dashboard() {
 
     const todayTransactions = transactions.filter(transaction => new Date(transaction.date) >= today);
     const todaySales = todayTransactions.reduce((sum, transaction) => sum + transaction.total, 0);
-    const lowStockProducts = products.filter(product => product.stock <= product.lowStockThreshold);
+    const lowStockProducts = products.filter(product => product.stock <= product.minStock);
 
     const recentTransactions = transactions.slice(0, 5);
 
@@ -153,7 +153,7 @@ function Dashboard() {
                                         </div>
                                         <div className="text-right">
                                             <p className="font-bold text-destructive">{product.stock} unid.</p>
-                                            <p className="text-xs text-muted-foreground">Mín: {product.lowStockThreshold}</p>
+                                            <p className="text-xs text-muted-foreground">Mín: {product.minStock}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -163,8 +163,6 @@ function Dashboard() {
                 </Card>
             </div>
         </div>
-
-
     )
 }
 

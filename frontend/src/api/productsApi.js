@@ -9,18 +9,18 @@ export async function getProducts() {
     }, "Error getting products")
 }
 
-export async function addProduct(name, price, stock, barcode) {
+export async function addProduct(name, price, stock, minStock, barcode) {
     return request(API_URL, {
         method: 'POST',
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name, price, stock, barcode })
+        body: JSON.stringify({ name, price, stock, minStock, barcode })
     }, "Error adding product")
 }
 
-export async function updateProduct(productId, name, price, stock, barcode) {
+export async function updateProduct(productId, name, price, stock, minStock, barcode) {
     return request(`${API_URL}/${productId}`, {
         method: 'PUT',
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({name, price, stock, barcode})
+        body: JSON.stringify({ name, price, stock, minStock, barcode })
     }, "Error updating product")
 }

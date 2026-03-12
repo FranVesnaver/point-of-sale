@@ -25,7 +25,7 @@ export function ContextProvider({ children }) {
         return sales.map((sale) => {
             return {
                 ...sale,
-                id: String(sale.id),
+                id: Number(sale.id),
                 total: Number(sale.total),
                 items: normalizeSaleItems(sale.items),
                 paymentMethod: String(sale.paymentMethod),
@@ -38,11 +38,12 @@ export function ContextProvider({ children }) {
         return products.map((product) => {
             return {
                 ...product,
-                id: String(product.id),
+                id: Number(product.id),
                 name: String(product.name),
                 barcode: String(product.barcode),
                 price: Number(product.price),
-                stock: Number(product.stock)
+                stock: Number(product.stock),
+                minStock: Number(product.minStock)
             };
         });
     }
