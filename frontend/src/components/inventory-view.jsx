@@ -5,12 +5,11 @@ import { Button } from "./ui/button.jsx"
 import { Input } from "./ui/input.jsx"
 import { Badge } from "./ui/badge.jsx"
 import { Search, Plus, Minus, Package, AlertTriangle, Edit2, Check, X } from "lucide-react"
-import { categories } from "../lib/sample-data"
 import { cn } from "../lib/utils"
 import { addProduct, updateProduct } from "../api/productsApi.js"
 
 export function InventoryView() {
-    const { products, setProducts, updateProductStock } = usePOS()
+    const { products, setProducts, updateProductStock, categories } = usePOS()
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("Todos")
     const [editingProductStock, setEditingProductStock] = useState(null)

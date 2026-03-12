@@ -5,12 +5,11 @@ import { Button } from "./ui/button.jsx"
 import { Input } from "./ui/input.jsx"
 import { Badge } from "./ui/badge.jsx"
 import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check, Hash, Barcode } from "lucide-react"
-import { categories } from "../lib/sample-data"
 import { cn } from "../lib/utils"
 import { addItemToSale, createSale, finalizeSale } from "../api/salesApi"
 
 export function SalesView() {
-    const { products, cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, addTransaction, updateStockAfterTransaction } = usePOS()
+    const { products, cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, addTransaction, updateStockAfterTransaction, categories } = usePOS()
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("Todos")
     const [showPayment, setShowPayment] = useState(false)

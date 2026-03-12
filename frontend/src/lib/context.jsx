@@ -9,6 +9,8 @@ export function ContextProvider({ children }) {
     const [cart, setCart] = useState([])
     const [transactions, setTransactions] = useState([])
 
+    const categories = ['Todos', 'Lácteos', 'Panadería', 'Varios', 'Bebidas', 'Higiene', 'Snacks']
+
     const normalizeSaleItems = (saleItems) => {
         return saleItems.map((saleItem) => {
             return {
@@ -144,6 +146,7 @@ export function ContextProvider({ children }) {
                 addTransaction,
                 updateStockAfterTransaction,
                 updateProductStock,
+                categories
             }}
         >
             {children}
