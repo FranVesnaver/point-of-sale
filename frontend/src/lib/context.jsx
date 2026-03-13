@@ -1,6 +1,16 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { getSales } from "../api/salesApi.js";
 import { getProducts } from "../api/productsApi.js";
+import { normalizeSales } from "../domain/sales.js";
+import { normalizeProducts } from "../domain/product.js";
+import {
+    addToCart as addToCartDomain,
+    removeFromCart as removeFromCartDomain,
+    updateQuantity as updateQuantityDomain,
+    clearCart as clearCartDomain,
+    cartTotal as cartTotalDomain,
+    updateStockAfterTransaction as updateStockAfterTransactionDomain
+} from "../domain/cart.js";
 
 const Context = createContext(undefined);
 
@@ -18,46 +28,6 @@ export function ContextProvider({ children }) {
         ["HYGIENE", "Higiene"],
         ["SNACKS", "Snacks"]
     ]);
-
-    const normalizeSaleItems = (saleItems) => {
-        return saleItems.map((saleItem) => {
-            return {
-                ...saleItem,
-                productName: String(saleItem.productName),
-                quantity: Number(saleItem.quantity),
-                unitPrice: Number(saleItem.unitPrice),
-                subtotal: Number(saleItem.subtotal)
-            }
-        });
-    }
-
-    const normalizeSales = (sales) => {
-        return sales.map((sale) => {
-            return {
-                ...sale,
-                id: Number(sale.id),
-                total: Number(sale.total),
-                items: normalizeSaleItems(sale.items),
-                paymentMethod: String(sale.paymentMethod),
-                date: sale.date
-            }
-        });
-    }
-
-    const normalizeProducts = (products) => {
-        return products.map((product) => {
-            return {
-                ...product,
-                id: Number(product.id),
-                name: String(product.name),
-                barcode: String(product.barcode),
-                price: Number(product.price),
-                stock: Number(product.stock),
-                minStock: Number(product.minStock),
-                category: String(product.category),
-            };
-        });
-    }
 
     useEffect(() => {
         let active = true;
@@ -80,56 +50,27 @@ export function ContextProvider({ children }) {
     }, []);
 
     const addToCart = (product, quantityToAdd = 1) => {
-        setCart(prev => {
-            const existing = prev.find(item => item.id === product.id)
-            if (existing) {
-                if (existing.quantity + quantityToAdd > product.stock) return prev
-                return prev.map(item =>
-                    item.id === product.id
-                        ? { ...item, quantity: item.quantity + quantityToAdd }
-                        : item
-                )
-            }
-            return [...prev, { ...product, quantity: quantityToAdd }]
-        })
+        setCart(prev => addToCartDomain(prev, product, quantityToAdd))
     }
 
     const removeFromCart = (productId) => {
-        setCart(prev => prev.filter(item => item.id !== productId))
+        setCart(prev => removeFromCartDomain(prev, productId))
     }
 
     const updateQuantity = (productId, quantity) => {
-        if (quantity <= 0) {
-            removeFromCart(productId)
-            return
-        }
-        setCart(prev =>
-            prev.map(item =>
-                item.id === productId ? { ...item, quantity } : item
-            )
-        )
+        setCart(prev => updateQuantityDomain(prev, productId, quantity))
     }
 
-    const clearCart = () => setCart([])
+    const clearCart = () => setCart(clearCartDomain())
 
-    const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    const cartTotal = cartTotalDomain(cart)
 
     const addTransaction = (transaction) => {
         setTransactions(prev => [transaction, ...prev])
     }
 
     const updateStockAfterTransaction = (soldItems) => {
-        const quantitiesByBarcode = new Map()
-        for (const item of soldItems) {
-            quantitiesByBarcode.set(item.barcode, (quantitiesByBarcode.get(item.barcode) ?? 0) + item.quantity);
-        }
-
-        setProducts(prev =>
-            prev.map(p => {
-                const qty = quantitiesByBarcode.get(p.barcode)
-                return qty ? { ...p, stock: p.stock - qty } : p
-            })
-        )
+        setProducts(prev => updateStockAfterTransactionDomain(prev, soldItems))
     }
 
     const updateProductStock = (productId, newStock) => {
