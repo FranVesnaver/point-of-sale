@@ -1,7 +1,13 @@
-import { describe, expect, it } from "vitest"
-import { normalizeProduct, normalizeProducts } from "../../domain/product.js"
+import { describe, expect, it } from "vitest";
+import { normalizeProduct, normalizeProducts, filterProducts, getLowStock } from "../../domain/product.js";
 
 describe("product domain", () => {
+    const products = [
+        { id: 1, name: "Leche Entera", barcode: "111", category: "DAIRY", stock: 5, minStock: 3 },
+        { id: 2, name: "Pan", barcode: "222", category: "BAKERY", stock: 1, minStock: 2 },
+        { id: 3, name: "Jabon", barcode: "333", category: "HYGIENE", stock: 10, minStock: 2 }
+    ];
+
     it("normalizes a product", () => {
         const input = {
             id: "1",
@@ -11,8 +17,8 @@ describe("product domain", () => {
             stock: "2",
             minStock: "1",
             category: "OTHER"
-        }
-        const normalized = normalizeProduct(input)
+        };
+        const normalized = normalizeProduct(input);
         expect(normalized).toEqual({
             ...input,
             id: 1,
@@ -22,12 +28,35 @@ describe("product domain", () => {
             stock: 2,
             minStock: 1,
             category: "OTHER"
-        })
+        });
     })
 
     it("normalizes a list of products", () => {
-        const result = normalizeProducts([{ id: "1" }, { id: 2 }])
-        expect(result[0].id).toBe(1)
-        expect(result[1].id).toBe(2)
+        const result = normalizeProducts([{ id: "1" }, { id: 2 }]);
+        expect(result[0].id).toBe(1);
+        expect(result[1].id).toBe(2);
+    })
+
+    it("filters by search term and category", () => {
+        const result = filterProducts(products, "pan", "BAKERY");
+        expect(result).toHaveLength(1);
+        expect(result[0].id).toBe(2);
+    })
+
+    it("matches barcode in search", () => {
+        const result = filterProducts(products, "333", "ALL");
+        expect(result).toHaveLength(1);
+        expect(result[0].id).toBe(3);
+    })
+
+    it("returns all when empty search and ALL category", () => {
+        const result = filterProducts(products, "", "ALL");
+        expect(result).toHaveLength(3);
+    })
+
+    it("detects low stock", () => {
+        const lowStock = getLowStock(products);
+        expect(lowStock).toHaveLength(1);
+        expect(lowStock[0].id).toBe(2);
     })
 })
