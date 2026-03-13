@@ -1,48 +1,43 @@
-import { useState } from "react"
-import { usePOS } from "../lib/context.jsx"
-import { Card, CardContent } from "../components/ui/card.jsx"
-import { Button } from "../components/ui/button.jsx"
-import { Input } from "../components/ui/input.jsx"
-import { Badge } from "../components/ui/badge.jsx"
-import { Search, Plus, Minus, Package, AlertTriangle, Edit2, Check, X } from "lucide-react"
-import { cn } from "../lib/utils.js"
-import { addProduct, updateProduct } from "../api/productsApi.js"
+import { useState } from "react";
+import { usePOS } from "../lib/context.jsx";
+import { Card, CardContent } from "../components/ui/card.jsx";
+import { Button } from "../components/ui/button.jsx";
+import { Input } from "../components/ui/input.jsx";
+import { Badge } from "../components/ui/badge.jsx";
+import { Search, Plus, Minus, Package, AlertTriangle, Edit2, Check, X } from "lucide-react";
+import { cn } from "../lib/utils.js";
+import { addProduct, updateProduct } from "../api/productsApi.js";
+import { filterProducts, getLowStock } from "../domain/product.js";
 
 export function InventoryView() {
-    const { products, setProducts, updateProductStock, categories } = usePOS()
-    const [searchTerm, setSearchTerm] = useState("")
-    const [selectedCategory, setSelectedCategory] = useState("ALL")
-    const [editingProductStock, setEditingProductStock] = useState(null)
-    const [editStock, setEditStock] = useState("")
-    const [showAddProduct, setShowAddProduct] = useState(false)
-    const [showEditProduct, setShowEditProduct] = useState(false)
-    const [editingProduct, setEditingProduct] = useState(null)
-    const [isUpdatingProduct, setIsUpdatingProduct] = useState(false)
-    const [isAddingProduct, setIsAddingProduct] = useState(false)
+    const { products, setProducts, updateProductStock, categories } = usePOS();
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("ALL");
+    const [editingProductStock, setEditingProductStock] = useState(null);
+    const [editStock, setEditStock] = useState("");
+    const [showAddProduct, setShowAddProduct] = useState(false);
+    const [showEditProduct, setShowEditProduct] = useState(false);
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [isUpdatingProduct, setIsUpdatingProduct] = useState(false);
+    const [isAddingProduct, setIsAddingProduct] = useState(false);
     const [newProduct, setNewProduct] = useState({
         name: "",
         price: 0,
         stock: 0,
         category: "OTHER",
         minStock: 10
-    })
+    });
 
-    const filteredProducts = products.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.barcode?.includes(searchTerm)
-        const matchesCategory = selectedCategory === "ALL" || product.category === selectedCategory
-        return matchesSearch && matchesCategory
-    })
-
-    const lowStockCount = products.filter(p => p.stock <= p.minStock).length
+    const filteredProducts = filterProducts(products, searchTerm, selectedCategory);
+    const lowStockCount = getLowStock(products).length;
 
     const handleSaveStock = (productId) => {
-        const newStockValue = Number.parseInt(editStock)
+        const newStockValue = Number.parseInt(editStock);
         if (!Number.isNaN(newStockValue) && newStockValue >= 0) {
-            updateProductStock(productId, newStockValue)
+            updateProductStock(productId, newStockValue);
         }
-        setEditingProductStock(null)
-        setEditStock("")
+        setEditingProductStock(null);
+        setEditStock("");
     }
 
     const handleAddProduct = async () => {

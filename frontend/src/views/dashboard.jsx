@@ -1,16 +1,17 @@
-import  {Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.jsx";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.jsx";
 import { AlertTriangle, DollarSign, ShoppingBag, Package, TrendingUp, Clock } from "lucide-react";
 import { usePOS } from "../lib/context.jsx";
+import { getLowStock } from "../domain/product.js";
 
 function Dashboard() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const { transactions, products } = usePOS()
+    const { transactions, products } = usePOS();
 
     const todayTransactions = transactions.filter(transaction => new Date(transaction.date) >= today);
     const todaySales = todayTransactions.reduce((sum, transaction) => sum + transaction.total, 0);
-    const lowStockProducts = products.filter(product => product.stock <= product.minStock);
+    const lowStockProducts = getLowStock(products);
 
     const recentTransactions = transactions.slice(0, 5);
 

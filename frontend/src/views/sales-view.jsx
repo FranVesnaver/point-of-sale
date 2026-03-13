@@ -1,67 +1,63 @@
-import { useEffect, useMemo, useState } from "react"
-import { usePOS } from "../lib/context.jsx"
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.jsx"
-import { Button } from "../components/ui/button.jsx"
-import { Input } from "../components/ui/input.jsx"
-import { Badge } from "../components/ui/badge.jsx"
-import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check, Hash, Barcode } from "lucide-react"
-import { cn } from "../lib/utils.js"
-import { addItemToSale, createSale, finalizeSale } from "../api/salesApi.js"
+import { useEffect, useMemo, useState } from "react";
+import { usePOS } from "../lib/context.jsx";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.jsx";
+import { Button } from "../components/ui/button.jsx";
+import { Input } from "../components/ui/input.jsx";
+import { Badge } from "../components/ui/badge.jsx";
+import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check, Hash, Barcode } from "lucide-react";
+import { cn } from "../lib/utils.js";
+import { addItemToSale, createSale, finalizeSale } from "../api/salesApi.js";
+import { filterProducts } from "../domain/product.js";
 
 export function SalesView() {
-    const { products, cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, addTransaction, updateStockAfterTransaction, categories } = usePOS()
-    const [searchTerm, setSearchTerm] = useState("")
-    const [selectedCategory, setSelectedCategory] = useState("ALL")
-    const [showPayment, setShowPayment] = useState(false)
-    const [paymentMethod, setPaymentMethod] = useState("CASH")
-    const [cashReceived, setCashReceived] = useState("")
-    const [showSuccess, setShowSuccess] = useState(false)
-    const [isProcessingPayment, setIsProcessingPayment] = useState(false)
-    const [paymentError, setPaymentError] = useState("")
-    const [quantityToAdd, setQuantityToAdd] = useState(1)
-    const [barcodeScanned, setBarcodeScanned] = useState("")
+    const { products, cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, addTransaction, updateStockAfterTransaction, categories } = usePOS();
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("ALL");
+    const [showPayment, setShowPayment] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState("CASH");
+    const [cashReceived, setCashReceived] = useState("");
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+    const [paymentError, setPaymentError] = useState("");
+    const [quantityToAdd, setQuantityToAdd] = useState(1);
+    const [barcodeScanned, setBarcodeScanned] = useState("");
 
     useEffect(() => {
         if (!showPayment) {
-            setPaymentError("")
+            setPaymentError("");
         }
-    }, [showPayment])
+    }, [showPayment]);
 
     const productsByBarcode = useMemo(() => {
-        const map = {}
+        const map = {};
         for (const p of products) {
-            map[p.barcode] = p
+            map[p.barcode] = p;
         }
-        return map
-    }, [products])
+        return map;
+    }, [products]);
 
-    const filteredProducts = products.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.barcode?.includes(searchTerm)
-        const matchesCategory = selectedCategory === "ALL" || product.category === selectedCategory
-        return matchesSearch && matchesCategory
-    })
+    const filteredProducts = filterProducts(products, searchTerm, selectedCategory);
 
     const handlePayment = async () => {
-        if (cart.length === 0) return
+        if (cart.length === 0) return;
 
-        const productsWithoutBarcode = cart.filter(item => !item.barcode)
+        const productsWithoutBarcode = cart.filter(item => !item.barcode);
         if (productsWithoutBarcode.length > 0) {
-            setPaymentError("Todos los productos deben tener código de barras para venderse.")
-            return
+            setPaymentError("Todos los productos deben tener código de barras para venderse.");
+            return;
         }
 
-        setIsProcessingPayment(true)
-        setPaymentError("")
+        setIsProcessingPayment(true);
+        setPaymentError("");
 
         try {
-            const sale = await createSale()
+            const sale = await createSale();
 
             for (const item of cart) {
-                await addItemToSale(sale.id, item.barcode, item.quantity)
+                await addItemToSale(sale.id, item.barcode, item.quantity);
             }
 
-            const finalizedSale = await finalizeSale(sale.id, paymentMethod)
+            const finalizedSale = await finalizeSale(sale.id, paymentMethod);
 
             const transaction = {
                 id: `${finalizedSale.id}`,
@@ -73,32 +69,32 @@ export function SalesView() {
                     cashReceived: Number.parseFloat(cashReceived),
                     change: Number.parseFloat(cashReceived) - finalizedSale.total
                 })
-            }
+            };
 
-            addTransaction(transaction)
-            updateStockAfterTransaction(cart)
-            clearCart()
-            setShowPayment(false)
-            setCashReceived("")
-            setShowSuccess(true)
-            setTimeout(() => setShowSuccess(false), 2000)
+            addTransaction(transaction);
+            updateStockAfterTransaction(cart);
+            clearCart();
+            setShowPayment(false);
+            setCashReceived("");
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 2000);
         } catch (error) {
-            setPaymentError(error instanceof Error ? error.message : "No se pudo completar la venta.")
+            setPaymentError(error instanceof Error ? error.message : "No se pudo completar la venta.");
         } finally {
-            setIsProcessingPayment(false)
+            setIsProcessingPayment(false);
         }
     }
 
     const change = paymentMethod === "CASH" && cashReceived
         ? Number.parseFloat(cashReceived) - cartTotal
-        : 0
+        : 0;
 
     const handleQuantityToAddChange = (value) => {
-        const parsedValue = Number.parseInt(value, 10)
+        const parsedValue = Number.parseInt(value, 10);
         if (Number.isNaN(parsedValue))
-            setQuantityToAdd(0)
+            setQuantityToAdd(0);
         else
-            setQuantityToAdd(parsedValue)
+            setQuantityToAdd(parsedValue);
     }
 
     const handleBarcodeScanned = (barcode) => {

@@ -14,3 +14,17 @@ export function normalizeProduct(product) {
 export function normalizeProducts(products) {
     return products.map(normalizeProduct)
 }
+
+export function filterProducts(products, searchTerm, selectedCategory) {
+    const normalizedSearch = (searchTerm ?? "").toLowerCase()
+    return products.filter(product => {
+        const matchesSearch = product.name.toLowerCase().includes(normalizedSearch) ||
+            product.barcode?.includes(searchTerm ?? "")
+        const matchesCategory = selectedCategory === "ALL" || product.category === selectedCategory
+        return matchesSearch && matchesCategory
+    })
+}
+
+export function getLowStock(products) {
+    return products.filter(product => product.stock <= product.minStock)
+}
