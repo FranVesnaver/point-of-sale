@@ -11,6 +11,7 @@ import {
     cartTotal as cartTotalDomain,
     updateStockAfterTransaction as updateStockAfterTransactionDomain
 } from "../domain/cart.js";
+import { categories } from "../domain/categories.js";
 
 const Context = createContext(undefined);
 
@@ -18,16 +19,6 @@ export function ContextProvider({ children }) {
     const [products, setProducts] = useState([])
     const [cart, setCart] = useState([])
     const [transactions, setTransactions] = useState([])
-
-    const categories = new Map([
-        ["ALL", "Todos"],
-        ["DAIRY", "Lácteos"],
-        ["BAKERY", "Panadería"],
-        ["OTHER", "Varios"],
-        ["BREWERY", "Bebidas"],
-        ["HYGIENE", "Higiene"],
-        ["SNACKS", "Snacks"]
-    ]);
 
     useEffect(() => {
         let active = true;
@@ -50,27 +41,27 @@ export function ContextProvider({ children }) {
     }, []);
 
     const addToCart = (product, quantityToAdd = 1) => {
-        setCart(prev => addToCartDomain(prev, product, quantityToAdd))
+        setCart(prev => addToCartDomain(prev, product, quantityToAdd));
     }
 
     const removeFromCart = (productId) => {
-        setCart(prev => removeFromCartDomain(prev, productId))
+        setCart(prev => removeFromCartDomain(prev, productId));
     }
 
     const updateQuantity = (productId, quantity) => {
-        setCart(prev => updateQuantityDomain(prev, productId, quantity))
+        setCart(prev => updateQuantityDomain(prev, productId, quantity));
     }
 
-    const clearCart = () => setCart(clearCartDomain())
+    const clearCart = () => setCart(clearCartDomain());
 
-    const cartTotal = cartTotalDomain(cart)
+    const cartTotal = cartTotalDomain(cart);
 
     const addTransaction = (transaction) => {
-        setTransactions(prev => [transaction, ...prev])
+        setTransactions(prev => [transaction, ...prev]);
     }
 
     const updateStockAfterTransaction = (soldItems) => {
-        setProducts(prev => updateStockAfterTransactionDomain(prev, soldItems))
+        setProducts(prev => updateStockAfterTransactionDomain(prev, soldItems));
     }
 
     const updateProductStock = (productId, newStock) => {
@@ -78,7 +69,7 @@ export function ContextProvider({ children }) {
             prev.map(p =>
                 p.id === productId ? { ...p, stock: newStock } : p
             )
-        )
+        );
     }
 
     return (
@@ -105,9 +96,9 @@ export function ContextProvider({ children }) {
 }
 
 export function usePOS() {
-    const context = useContext(Context)
+    const context = useContext(Context);
     if (!context) {
-        throw new Error('usePOS must be used within a ContextProvider')
+        throw new Error('usePOS must be used within a ContextProvider');
     }
-    return context
+    return context;
 }
