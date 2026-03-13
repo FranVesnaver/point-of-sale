@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react"
-import { usePOS } from "../lib/context"
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx"
-import { Button } from "./ui/button.jsx"
-import { Input } from "./ui/input.jsx"
-import { Badge } from "./ui/badge.jsx"
+import { usePOS } from "../lib/context.jsx"
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.jsx"
+import { Button } from "../components/ui/button.jsx"
+import { Input } from "../components/ui/input.jsx"
+import { Badge } from "../components/ui/badge.jsx"
 import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check, Hash, Barcode } from "lucide-react"
-import { cn } from "../lib/utils"
-import { addItemToSale, createSale, finalizeSale } from "../api/salesApi"
+import { cn } from "../lib/utils.js"
+import { addItemToSale, createSale, finalizeSale } from "../api/salesApi.js"
 
 export function SalesView() {
     const { products, cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, addTransaction, updateStockAfterTransaction, categories } = usePOS()

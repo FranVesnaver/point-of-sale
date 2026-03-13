@@ -1,11 +1,11 @@
 import { useState } from "react"
-import { usePOS } from "../lib/context"
-import { Card, CardContent } from "./ui/card.jsx"
-import { Button } from "./ui/button.jsx"
-import { Input } from "./ui/input.jsx"
-import { Badge } from "./ui/badge.jsx"
+import { usePOS } from "../lib/context.jsx"
+import { Card, CardContent } from "../components/ui/card.jsx"
+import { Button } from "../components/ui/button.jsx"
+import { Input } from "../components/ui/input.jsx"
+import { Badge } from "../components/ui/badge.jsx"
 import { Search, Plus, Minus, Package, AlertTriangle, Edit2, Check, X } from "lucide-react"
-import { cn } from "../lib/utils"
+import { cn } from "../lib/utils.js"
 import { addProduct, updateProduct } from "../api/productsApi.js"
 
 export function InventoryView() {

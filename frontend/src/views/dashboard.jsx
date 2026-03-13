@@ -1,6 +1,6 @@
-import {Card, CardContent, CardHeader, CardTitle} from "./ui/card.jsx";
-import {AlertTriangle, DollarSign, ShoppingBag, Package, TrendingUp, Clock} from "lucide-react";
-import {usePOS} from "../lib/context.jsx";
+import  {Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.jsx";
+import { AlertTriangle, DollarSign, ShoppingBag, Package, TrendingUp, Clock } from "lucide-react";
+import { usePOS } from "../lib/context.jsx";
 
 function Dashboard() {
     const today = new Date();

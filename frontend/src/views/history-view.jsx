@@ -1,10 +1,10 @@
 import { useState } from "react"
-import { usePOS } from "../lib/context"
-import { Card, CardContent } from "./ui/card.jsx"
-import { Input } from "./ui/input.jsx"
-import { Badge } from "./ui/badge.jsx"
+import { usePOS } from "../lib/context.jsx"
+import { Card, CardContent } from "../components/ui/card.jsx"
+import { Input } from "../components/ui/input.jsx"
+import { Badge } from "../components/ui/badge.jsx"
 import { Search, Calendar, CreditCard, Banknote, Smartphone, ChevronDown, ChevronUp, DollarSign, ShoppingBag, CircleQuestionMark } from "lucide-react"
-import { cn } from "../lib/utils"
+import { cn } from "../lib/utils.js"
 
 export function HistoryView() {
     const { transactions } = usePOS()

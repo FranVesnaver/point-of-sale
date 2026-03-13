@@ -1,11 +1,11 @@
-import {useState} from "react";
+import { useState } from "react";
 
-import Dashboard from "../components/dashboard.jsx";
-import {Navigation} from "../components/navigation.jsx";
-import {ContextProvider} from "../lib/context.jsx";
-import {SalesView} from "../components/sales-view.jsx";
-import {InventoryView} from "../components/inventory-view.jsx";
-import {HistoryView} from "../components/history-view.jsx";
+import Dashboard from "../views/dashboard.jsx";
+import { Navigation } from "../components/navigation.jsx";
+import { ContextProvider } from "../lib/context.jsx";
+import { SalesView } from "../views/sales-view.jsx";
+import { InventoryView } from "../views/inventory-view.jsx";
+import { HistoryView } from "../views/history-view.jsx";
 
 function Content() {
     const [currentView, setCurrentView] = useState("dashboard");
