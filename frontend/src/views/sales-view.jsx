@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.
 import { Button } from "../components/ui/button.jsx";
 import { Input } from "../components/ui/input.jsx";
 import { Badge } from "../components/ui/badge.jsx";
-import { Search, Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check, Hash, Barcode } from "lucide-react";
+import { Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check, Hash, Barcode } from "lucide-react";
 import { cn } from "../lib/utils.js";
 import { addItemToSale, createSale, finalizeSale } from "../api/salesApi.js";
 import { filterProducts } from "../domain/product.js";
+import { SearchBar } from "../components/search-bar.jsx";
 
 export function SalesView() {
     const { products, cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, addTransaction, updateStockAfterTransaction, categories } = usePOS();
@@ -153,16 +154,11 @@ export function SalesView() {
 
                 {/* Search */}
                 <div className="mb-4">
-                    <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                        <Input
-                            type="text"
-                            placeholder="Buscar producto o código de barras..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-12 h-12 text-base bg-card border-border"
-                        />
-                    </div>
+                    <SearchBar
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        placeholder="Buscar producto o código de barras..."
+                    ></SearchBar>
                 </div>
 
                 {/* Categories */}

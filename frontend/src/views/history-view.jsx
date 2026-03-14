@@ -1,29 +1,29 @@
-import { useState } from "react"
-import { usePOS } from "../lib/context.jsx"
-import { Card, CardContent } from "../components/ui/card.jsx"
-import { Input } from "../components/ui/input.jsx"
-import { Badge } from "../components/ui/badge.jsx"
-import { Search, Calendar, CreditCard, Banknote, Smartphone, ChevronDown, ChevronUp, DollarSign, ShoppingBag, CircleQuestionMark } from "lucide-react"
-import { cn } from "../lib/utils.js"
+import { useState } from "react";
+import { usePOS } from "../lib/context.jsx";
+import { Card, CardContent } from "../components/ui/card.jsx";
+import { Badge } from "../components/ui/badge.jsx";
+import { Calendar, CreditCard, Banknote, Smartphone, ChevronDown, ChevronUp, DollarSign, ShoppingBag, CircleQuestionMark } from "lucide-react";
+import { SearchBar } from "../components/search-bar.jsx";
+import { cn } from "../lib/utils.js";
 
 export function HistoryView() {
-    const { transactions } = usePOS()
-    const [searchTerm, setSearchTerm] = useState("")
-    const [expandedTransaction, setExpandedTransaction] = useState(null)
-    const [filterPayment, setFilterPayment] = useState('all')
+    const { transactions } = usePOS();
+    const [searchTerm, setSearchTerm] = useState("");
+    const [expandedTransaction, setExpandedTransaction] = useState(null);
+    const [filterPayment, setFilterPayment] = useState('all');
 
     const filteredTransactions = transactions.filter(transaction => {
         const matchesSearch = transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            transaction.items.some(item => item.productName.toLowerCase().includes(searchTerm.toLowerCase()))
-        const matchesPayment = filterPayment === 'all' || transaction.paymentMethod === filterPayment
-        return matchesSearch && matchesPayment
+            transaction.items.some(item => item.productName.toLowerCase().includes(searchTerm.toLowerCase()));
+        const matchesPayment = filterPayment === 'all' || transaction.paymentMethod === filterPayment;
+        return matchesSearch && matchesPayment;
     })
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    const todayTransactions = transactions.filter(t => new Date(t.date) >= today)
-    const todaySales = todayTransactions.reduce((sum, t) => sum + t.total, 0)
+    const todayTransactions = transactions.filter(t => new Date(t.date) >= today);
+    const todaySales = todayTransactions.reduce((sum, t) => sum + t.total, 0);
 
     const getPaymentIcon = (method) => {
         switch (method) {
@@ -44,20 +44,20 @@ export function HistoryView() {
     }
 
     const formatDate = (date) => {
-        const d = new Date(date)
-        const now = new Date()
-        const isToday = d.toDateString() === now.toDateString()
+        const d = new Date(date);
+        const now = new Date();
+        const isToday = d.toDateString() === now.toDateString();
 
         if (isToday) {
-            return `Hoy, ${d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}`
+            return `Hoy, ${d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}`;
         }
 
-        const yesterday = new Date(now)
-        yesterday.setDate(yesterday.getDate() - 1)
-        const isYesterday = d.toDateString() === yesterday.toDateString()
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const isYesterday = d.toDateString() === yesterday.toDateString();
 
         if (isYesterday) {
-            return `Ayer, ${d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}`
+            return `Ayer, ${d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}`;
         }
 
         return d.toLocaleDateString('es', {
@@ -65,7 +65,7 @@ export function HistoryView() {
             month: 'short',
             hour: '2-digit',
             minute: '2-digit'
-        })
+        });
     }
 
     return (
@@ -108,16 +108,11 @@ export function HistoryView() {
 
             {/* Search and Filter */}
             <div className="space-y-3">
-                <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                        type="text"
-                        placeholder="Buscar por ID o producto..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-12 h-12 text-base bg-card"
-                    />
-                </div>
+                <SearchBar
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    placeholder="Buscar por ID o producto..."
+                ></SearchBar>
                 <div className="flex gap-2 overflow-x-auto pb-2">
                     {[
                         { id: 'all', label: 'Todos' },
