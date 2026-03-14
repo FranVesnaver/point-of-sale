@@ -13,7 +13,7 @@ export function HistoryView() {
     const [filterPayment, setFilterPayment] = useState('all');
 
     const filteredTransactions = transactions.filter(transaction => {
-        const matchesSearch = transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        const matchesSearch = String(transaction.id).toLowerCase().includes(searchTerm.toLowerCase()) ||
             transaction.items.some(item => item.productName.toLowerCase().includes(searchTerm.toLowerCase()));
         const matchesPayment = filterPayment === 'all' || transaction.paymentMethod === filterPayment;
         return matchesSearch && matchesPayment;
