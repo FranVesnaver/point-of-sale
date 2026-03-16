@@ -5,7 +5,7 @@ import { StatsCard } from "../components/stats-card.jsx";
 import { Badge } from "../components/ui/badge.jsx";
 import { Calendar, CreditCard, Banknote, Smartphone, ChevronDown, ChevronUp, DollarSign, ShoppingBag, CircleQuestionMark } from "lucide-react";
 import { SearchBar } from "../components/search-bar.jsx";
-import { cn } from "../lib/utils.js";
+import { FilterChips } from "../components/filter-chips.jsx";
 
 export function HistoryView() {
     const { transactions } = usePOS();
@@ -99,29 +99,16 @@ export function HistoryView() {
                     setSearchTerm={setSearchTerm}
                     placeholder="Buscar por ID o producto..."
                 ></SearchBar>
-                <div className="flex gap-2 overflow-x-auto pb-2">
-                    {[
-                        { id: 'all', label: 'Todos' },
-                        { id: "CASH", label: 'Efectivo', icon: Banknote },
-                        { id: "CARD", label: 'Tarjeta', icon: CreditCard },
-                        { id: "TRANSFER", label: 'Transfer', icon: Smartphone },
-                    ].map((filter) => (
-                        <button
-                            type="button"
-                            key={filter.id}
-                            onClick={() => setFilterPayment(filter.id)}
-                            className={cn(
-                                "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2",
-                                filterPayment === filter.id
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-card text-muted-foreground border border-border hover:border-primary hover:text-primary"
-                            )}
-                        >
-                            {filter.icon && <filter.icon className="w-4 h-4" />}
-                            {filter.label}
-                        </button>
-                    ))}
-                </div>
+                <FilterChips
+                    items={[
+                        { id: "all", label: "Todos" },
+                        { id: "CASH", label: "Efectivo", icon: Banknote },
+                        { id: "CARD", label: "Tarjeta", icon: CreditCard },
+                        { id: "TRANSFER", label: "Transfer", icon: Smartphone },
+                    ]}
+                    selectedId={filterPayment}
+                    onSelect={setFilterPayment}
+                />
             </div>
 
             {/* Transactions List */}

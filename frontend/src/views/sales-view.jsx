@@ -9,6 +9,7 @@ import { cn } from "../lib/utils.js";
 import { addItemToSale, createSale, finalizeSale } from "../api/salesApi.js";
 import { filterProducts } from "../domain/product.js";
 import { SearchBar } from "../components/search-bar.jsx";
+import { FilterChips } from "../components/filter-chips.jsx";
 
 export function SalesView() {
     const { products, cart, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, addTransaction, updateStockAfterTransaction, categories } = usePOS();
@@ -162,23 +163,15 @@ export function SalesView() {
                 </div>
 
                 {/* Categories */}
-                <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
-                    {categories.keys().map((category) => (
-                        <button
-                            type="button"
-                            key={category}
-                            onClick={() => setSelectedCategory(category)}
-                            className={cn(
-                                "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all",
-                                selectedCategory === category
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-card text-muted-foreground border border-border hover:border-primary hover:text-primary"
-                            )}
-                        >
-                            {categories.get(category)}
-                        </button>
-                    ))}
-                </div>
+                <FilterChips
+                    items={Array.from(categories.keys()).map((category) => ({
+                        id: category,
+                        label: categories.get(category),
+                    }))}
+                    selectedId={selectedCategory}
+                    onSelect={setSelectedCategory}
+                    className="pb-3 mb-4 scrollbar-hide"
+                />
 
                 {/* Products Grid */}
                 <div className="flex-1 overflow-y-auto">

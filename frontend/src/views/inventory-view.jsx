@@ -10,6 +10,7 @@ import { cn } from "../lib/utils.js";
 import { addProduct, updateProduct } from "../api/productsApi.js";
 import { filterProducts, getLowStock } from "../domain/product.js";
 import { SearchBar } from "../components/search-bar.jsx";
+import { FilterChips } from "../components/filter-chips.jsx";
 
 export function InventoryView() {
     const { products, setProducts, updateProductStock, categories } = usePOS();
@@ -143,23 +144,15 @@ export function InventoryView() {
                     setSearchTerm={setSearchTerm}
                     placeholder="Buscar producto o código..."
                 ></SearchBar>
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                    {categories.keys().map((category) => (
-                        <button
-                            type="button"
-                            key={category}
-                            onClick={() => setSelectedCategory(category)}
-                            className={cn(
-                                "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all",
-                                selectedCategory === category
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-card text-muted-foreground border border-border hover:border-primary hover:text-primary"
-                            )}
-                        >
-                            {categories.get(category)}
-                        </button>
-                    ))}
-                </div>
+                <FilterChips
+                    items={Array.from(categories.keys()).map((category) => ({
+                        id: category,
+                        label: categories.get(category),
+                    }))}
+                    selectedId={selectedCategory}
+                    onSelect={setSelectedCategory}
+                    className="scrollbar-hide"
+                />
             </div>
 
             {/* Products List */}
