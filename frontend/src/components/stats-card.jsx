@@ -59,15 +59,9 @@ export function StatsCard({
                 )}
 
                 <div>
-                    <p className={cn("opacity-80", sizeStyles.label)}>
-                        {label}
-                    </p>
-
-                    <p className={cn("font-bold", sizeStyles.value)}>
-                        {value}
-                    </p>
+                    <p className={cn("opacity-80", sizeStyles.label)}>{label}</p>
+                    <p className={cn("font-bold", sizeStyles.value)}>{value}</p>
                 </div>
-
             </CardContent>
         </Card>
     )
