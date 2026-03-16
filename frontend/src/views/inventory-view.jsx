@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { usePOS } from "../lib/context.jsx";
 import { Card, CardContent } from "../components/ui/card.jsx";
+import { StatsCard } from "../components/stats-card.jsx";
 import { Button } from "../components/ui/button.jsx";
 import { Input } from "../components/ui/input.jsx";
 import { Badge } from "../components/ui/badge.jsx";
@@ -122,32 +123,17 @@ export function InventoryView() {
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4">
-                <Card className="border shadow-sm">
-                    <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                                <Package className="w-5 h-5 text-primary" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground">Total Productos</p>
-                                <p className="text-xl font-bold text-foreground">{products.length}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className={cn("border shadow-sm", lowStockCount > 0 && "border-destructive/50")}>
-                    <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", lowStockCount > 0 ? "bg-destructive/10" : "bg-secondary")}>
-                                <AlertTriangle className={cn("w-5 h-5", lowStockCount > 0 ? "text-destructive" : "text-muted-foreground")} />
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground">Stock Bajo</p>
-                                <p className="text-xl font-bold text-foreground">{lowStockCount}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                <StatsCard
+                    label="Total Productos"
+                    value={products.length}
+                    icon={Package}
+                />
+                <StatsCard
+                    label="Stock Bajo"
+                    value={lowStockCount}
+                    icon={AlertTriangle}
+                    variant={lowStockCount > 0 ? "warning" : "default"}
+                />
             </div>
 
             {/* Search and Filter */}

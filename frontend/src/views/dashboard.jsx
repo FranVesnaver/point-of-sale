@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.jsx";
+import { StatsCard } from "../components/stats-card.jsx";
 import { AlertTriangle, DollarSign, ShoppingBag, Package, TrendingUp, Clock } from "lucide-react";
 import { usePOS } from "../lib/context.jsx";
 import { getLowStock } from "../domain/product.js";
@@ -26,61 +27,31 @@ function Dashboard() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="bg-primary text-primary-foreground border-0 shadow-lg shadow-primary/20">
-                    <CardContent className="p-4 md:p-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center">
-                                <DollarSign className="w-5 h-5 md:w-6 md:h-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs md:text-sm opacity-80">Ventas Hoy</p>
-                                <p className="text-xl md:text-2xl font-bold">${todaySales.toFixed(2)}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                <StatsCard
+                    label="Ventas Hoy"
+                    value={`$${todaySales.toFixed(2)}`}
+                    icon={DollarSign}
+                    variant="primary"
+                />
 
-                <Card className="border shadow-sm">
-                    <CardContent className="p-4 md:p-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-accent flex items-center justify-center">
-                                <ShoppingBag className="w-5 h-5 md:w-6 md:h-6 text-accent-foreground" />
-                            </div>
-                            <div>
-                                <p className="text-xs md:text-sm text-muted-foreground">Transacciones</p>
-                                <p className="text-xl md:text-2xl font-bold text-foreground">{todayTransactions.length}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                <StatsCard
+                    label="Transacciones"
+                    value={todayTransactions.length}
+                    icon={ShoppingBag}
+                />
 
-                <Card className="border shadow-sm">
-                    <CardContent className="p-4 md:p-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-secondary flex items-center justify-center">
-                                <Package className="w-5 h-5 md:w-6 md:h-6 text-secondary-foreground" />
-                            </div>
-                            <div>
-                                <p className="text-xs md:text-sm text-muted-foreground">Productos</p>
-                                <p className="text-xl md:text-2xl font-bold text-foreground">{products.length}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                <StatsCard
+                    label="Productos"
+                    value={products.length}
+                    icon={Package}
+                />
 
-                <Card className={lowStockProducts.length > 0 ? "border-destructive/50 bg-destructive/5 border" : "border shadow-sm"}>
-                    <CardContent className="p-4 md:p-6">
-                        <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center ${lowStockProducts.length > 0 ? "bg-destructive/20" : "bg-secondary"}`}>
-                                <AlertTriangle className={`w-5 h-5 md:w-6 md:h-6 ${lowStockProducts.length > 0 ? "text-destructive" : "text-secondary-foreground"}`} />
-                            </div>
-                            <div>
-                                <p className="text-xs md:text-sm text-muted-foreground">Stock Bajo</p>
-                                <p className="text-xl md:text-2xl font-bold text-foreground">{lowStockProducts.length}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                <StatsCard
+                    label="Stock Bajo"
+                    value={lowStockProducts.length}
+                    icon={AlertTriangle}
+                    variant={lowStockProducts > 0 ? "warning" : "default"}
+                />
             </div>
 
 

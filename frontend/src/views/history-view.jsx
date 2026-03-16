@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { usePOS } from "../lib/context.jsx";
 import { Card, CardContent } from "../components/ui/card.jsx";
+import { StatsCard } from "../components/stats-card.jsx";
 import { Badge } from "../components/ui/badge.jsx";
 import { Calendar, CreditCard, Banknote, Smartphone, ChevronDown, ChevronUp, DollarSign, ShoppingBag, CircleQuestionMark } from "lucide-react";
 import { SearchBar } from "../components/search-bar.jsx";
@@ -78,32 +79,17 @@ export function HistoryView() {
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4">
-                <Card className="bg-primary text-primary-foreground border-0 shadow-lg shadow-primary/20">
-                    <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-primary-foreground/20 flex items-center justify-center">
-                                <DollarSign className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs opacity-80">Ventas Hoy</p>
-                                <p className="text-xl font-bold">${todaySales.toFixed(2)}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="border shadow-sm">
-                    <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
-                                <ShoppingBag className="w-5 h-5 text-secondary-foreground" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground">Total Transacciones</p>
-                                <p className="text-xl font-bold text-foreground">{transactions.length}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                <StatsCard
+                    label="Ventas Hoy"
+                    value={`$${todaySales.toFixed(2)}`}
+                    icon={DollarSign}
+                    variant="primary"
+                />
+                <StatsCard
+                    label="Total Transacciones"
+                    value={transactions.length}
+                    icon={ShoppingBag}
+                />
             </div>
 
             {/* Search and Filter */}
