@@ -164,7 +164,7 @@ export function SalesView() {
 
                 {/* Categories */}
                 <FilterChips
-                    items={Array.from(categories.keys()).map((category) => ({
+                    items={(categories.keys()).map((category) => ({
                         id: category,
                         label: categories.get(category),
                     }))}

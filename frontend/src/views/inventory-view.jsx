@@ -145,7 +145,7 @@ export function InventoryView() {
                     placeholder="Buscar producto o código..."
                 ></SearchBar>
                 <FilterChips
-                    items={Array.from(categories.keys()).map((category) => ({
+                    items={(categories.keys()).map((category) => ({
                         id: category,
                         label: categories.get(category),
                     }))}
