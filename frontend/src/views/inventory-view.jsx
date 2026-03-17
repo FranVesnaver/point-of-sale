@@ -140,8 +140,8 @@ export function InventoryView() {
             {/* Search and Filter */}
             <div className="space-y-3">
                 <SearchBar
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
+                    value={searchTerm}
+                    onChange={setSearchTerm}
                     placeholder="Buscar producto o código..."
                 ></SearchBar>
                 <FilterChips

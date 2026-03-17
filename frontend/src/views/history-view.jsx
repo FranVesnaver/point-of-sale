@@ -95,8 +95,8 @@ export function HistoryView() {
             {/* Search and Filter */}
             <div className="space-y-3">
                 <SearchBar
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
+                    value={searchTerm}
+                    onChange={setSearchTerm}
                     placeholder="Buscar por ID o producto..."
                 ></SearchBar>
                 <FilterChips

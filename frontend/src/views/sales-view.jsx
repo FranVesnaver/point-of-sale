@@ -156,8 +156,8 @@ export function SalesView() {
                 {/* Search */}
                 <div className="mb-4">
                     <SearchBar
-                        searchTerm={searchTerm}
-                        setSearchTerm={setSearchTerm}
+                        value={searchTerm}
+                        onChange={setSearchTerm}
                         placeholder="Buscar producto o código de barras..."
                     ></SearchBar>
                 </div>
