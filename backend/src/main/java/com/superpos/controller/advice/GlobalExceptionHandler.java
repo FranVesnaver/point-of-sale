@@ -62,6 +62,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ExistingUsernameException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleExistingUsername(ExistingUsernameException e) {
+        return new ErrorResponse(
+                e.getMessage(),
+                "EXISTING_USERNAME",
+                HttpStatus.CONFLICT.value()
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(MethodArgumentNotValidException e) {
