@@ -31,7 +31,7 @@ public class ProductController {
     @PostMapping
     public ProductResponse addProduct(
             @Valid @RequestBody AddProductRequest request
-            ) {
+    ) {
 
         Product product = productService.addProduct(
                 request.getBarcode(),
@@ -49,7 +49,7 @@ public class ProductController {
     public ProductResponse updateProduct(
             @PathVariable Long productId,
             @Valid @RequestBody UpdateProductRequest request
-            ) {
+    ) {
 
         Product product = productService.updateProduct(
                 productId,
