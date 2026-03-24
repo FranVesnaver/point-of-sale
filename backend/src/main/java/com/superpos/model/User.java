@@ -26,6 +26,6 @@ public class User {
 
     @Column(name = "is_admin", nullable = false)
     @Setter
-    private boolean isAdmin;
+    private boolean admin;
 
 }

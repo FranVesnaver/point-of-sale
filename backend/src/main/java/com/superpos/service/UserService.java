@@ -14,13 +14,13 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User createUser(String username, String password, boolean isAdmin) {
+    public User createUser(String username, String password, boolean admin) {
         if (userRepository.existsByUsername(username)) throw new ExistingUsernameException(username);
 
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
-        user.setAdmin(isAdmin);
+        user.setAdmin(admin);
 
         return userRepository.save(user);
     }

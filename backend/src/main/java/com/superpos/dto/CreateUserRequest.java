@@ -16,6 +16,6 @@ public class CreateUserRequest {
     private String password;
 
     @NotNull
-    private boolean isAdmin;
-    
+    private boolean admin;
+
 }
