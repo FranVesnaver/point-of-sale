@@ -1,6 +1,7 @@
 package com.superpos.service;
 
 import com.superpos.exception.ExistingUsernameException;
+import com.superpos.exception.InvalidCredentialsException;
 import com.superpos.model.User;
 import com.superpos.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,9 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PasswordHasher passwordHasher;
+
     @InjectMocks
     private UserService userService;
 
@@ -27,6 +31,9 @@ class UserServiceTest {
 
         when(userRepository.existsByUsername("abc"))
                 .thenReturn(false);
+
+        when(passwordHasher.hash("123"))
+                .thenReturn("hashed-password");
 
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -38,10 +45,11 @@ class UserServiceTest {
         );
 
         assertEquals("abc", result.getUsername());
-        assertEquals("123", result.getPassword());
+        assertEquals("hashed-password", result.getPassword());
         assertTrue(result.isAdmin());
 
         verify(userRepository).existsByUsername("abc");
+        verify(passwordHasher).hash("123");
         verify(userRepository).save(any(User.class));
     }
 
@@ -60,6 +68,54 @@ class UserServiceTest {
         );
 
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void authenticate_shouldReturnUserWhenCredentialsAreValid() {
+        User user = new User();
+        user.setUsername("cashier");
+        user.setPassword("hashed");
+        user.setAdmin(false);
+
+        when(userRepository.findByUsername("cashier")).thenReturn(java.util.Optional.of(user));
+        when(passwordHasher.matches("secret", "hashed")).thenReturn(true);
+        when(passwordHasher.isHashed("hashed")).thenReturn(true);
+
+        User result = userService.authenticate("cashier", "secret");
+
+        assertEquals(user, result);
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void authenticate_shouldRehashLegacyPlaintextPassword() {
+        User user = new User();
+        user.setUsername("cashier");
+        user.setPassword("secret");
+        user.setAdmin(false);
+
+        when(userRepository.findByUsername("cashier")).thenReturn(java.util.Optional.of(user));
+        when(passwordHasher.matches("secret", "secret")).thenReturn(true);
+        when(passwordHasher.isHashed("secret")).thenReturn(false);
+        when(passwordHasher.hash("secret")).thenReturn("rehash");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = userService.authenticate("cashier", "secret");
+
+        assertEquals("rehash", result.getPassword());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void authenticate_shouldThrowExceptionWhenCredentialsAreInvalid() {
+        User user = new User();
+        user.setUsername("cashier");
+        user.setPassword("hashed");
+
+        when(userRepository.findByUsername("cashier")).thenReturn(java.util.Optional.of(user));
+        when(passwordHasher.matches("wrong", "hashed")).thenReturn(false);
+
+        assertThrows(InvalidCredentialsException.class, () -> userService.authenticate("cashier", "wrong"));
     }
 
 }
