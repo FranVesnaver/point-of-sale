@@ -1,5 +1,6 @@
 package com.superpos.controller;
 
+import com.superpos.exception.ExistingUsernameException;
 import com.superpos.model.User;
 import com.superpos.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -9,8 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,6 +49,26 @@ class UserControllerTest {
                 .andExpect(jsonPath("admin").value(true));
 
         verify(userService).createUser("abc", "password", true);
+    }
+
+    @Test
+    void createProduct_shouldReturn409WhenTheUsernameAlreadyExists() throws Exception {
+
+        doThrow(new ExistingUsernameException("123"))
+                .when(userService)
+                .createUser(eq("abc"), eq("123"), eq(true));
+
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "username": "abc",
+                            "password": "123",
+                            "admin": true
+                        }
+                        """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("EXISTING_USERNAME"));
     }
 
 }
