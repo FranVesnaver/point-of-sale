@@ -1,5 +1,6 @@
 package com.superpos.service;
 
+import com.superpos.exception.ExistingUsernameException;
 import com.superpos.model.User;
 import com.superpos.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -10,8 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -43,6 +43,23 @@ class UserServiceTest {
 
         verify(userRepository).existsByUsername("abc");
         verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void createUser_shouldThrowExceptionWhenUsernameExists() {
+
+        when(userRepository.existsByUsername("abc"))
+                .thenReturn(true);
+
+        assertThrows(ExistingUsernameException.class, () ->
+                userService.createUser(
+                        "abc",
+                        "123",
+                        true
+                )
+        );
+
+        verify(userRepository, never()).save(any());
     }
 
 }
