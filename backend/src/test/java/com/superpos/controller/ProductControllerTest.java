@@ -1,10 +1,14 @@
 package com.superpos.controller;
 
+import com.superpos.config.AuthInterceptor;
 import com.superpos.exception.ExistingBarcodeException;
 import com.superpos.exception.ProductNotFoundException;
 import com.superpos.model.Category;
 import com.superpos.model.Product;
 import com.superpos.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -26,8 +30,17 @@ class ProductControllerTest {
     @MockitoBean
     private ProductService productService;
 
+    @MockitoBean
+    private AuthInterceptor authInterceptor;
+
     @Autowired
     private MockMvc mockMvc;
+
+    @BeforeEach
+    void allowInterceptor() {
+        when(authInterceptor.preHandle(any(HttpServletRequest.class), any(HttpServletResponse.class), any()))
+                .thenReturn(true);
+    }
 
     @Test
     void getProducts_shouldReturn200AndProducts() throws Exception {

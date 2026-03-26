@@ -1,8 +1,12 @@
 package com.superpos.controller;
 
+import com.superpos.config.AuthInterceptor;
 import com.superpos.exception.ExistingUsernameException;
 import com.superpos.model.User;
 import com.superpos.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,8 +26,17 @@ class UserControllerTest {
     @MockitoBean
     private UserService userService;
 
+    @MockitoBean
+    private AuthInterceptor authInterceptor;
+
     @Autowired
     private MockMvc mockMvc;
+
+    @BeforeEach
+    void allowInterceptor() {
+        when(authInterceptor.preHandle(any(HttpServletRequest.class), any(HttpServletResponse.class), any()))
+                .thenReturn(true);
+    }
 
     @Test
     void createUser_shouldReturn200AndUser() throws Exception {

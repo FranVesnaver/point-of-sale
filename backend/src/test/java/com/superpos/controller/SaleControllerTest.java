@@ -1,5 +1,6 @@
 package com.superpos.controller;
 
+import com.superpos.config.AuthInterceptor;
 import com.superpos.exception.InsufficientStockException;
 import com.superpos.exception.ProductWithBarcodeNotFoundException;
 import com.superpos.exception.SaleNotFoundException;
@@ -8,6 +9,9 @@ import com.superpos.model.Product;
 import com.superpos.model.Sale;
 import com.superpos.model.SaleItem;
 import com.superpos.service.SaleService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -31,8 +36,17 @@ class SaleControllerTest {
     @MockitoBean
     private SaleService saleService;
 
+    @MockitoBean
+    private AuthInterceptor authInterceptor;
+
     @Autowired
     private MockMvc mockMvc;
+
+    @BeforeEach
+    void allowInterceptor() {
+        when(authInterceptor.preHandle(any(HttpServletRequest.class), any(HttpServletResponse.class), any()))
+                .thenReturn(true);
+    }
 
     @Test
     void createSale_shouldReturn200AndSale() throws Exception {
