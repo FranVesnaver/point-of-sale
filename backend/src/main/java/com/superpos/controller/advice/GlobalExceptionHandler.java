@@ -72,6 +72,36 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleInvalidCredentials(InvalidCredentialsException e) {
+        return new ErrorResponse(
+                e.getMessage(),
+                "INVALID_CREDENTIALS",
+                HttpStatus.UNAUTHORIZED.value()
+        );
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleUnauthorized(UnauthorizedException e) {
+        return new ErrorResponse(
+                e.getMessage(),
+                "UNAUTHORIZED",
+                HttpStatus.UNAUTHORIZED.value()
+        );
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbidden(ForbiddenException e) {
+        return new ErrorResponse(
+                e.getMessage(),
+                "FORBIDDEN",
+                HttpStatus.FORBIDDEN.value()
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(MethodArgumentNotValidException e) {
