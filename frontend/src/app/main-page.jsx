@@ -6,6 +6,8 @@ import { ContextProvider } from "../lib/context.jsx";
 import { SalesView } from "../views/sales-view.jsx";
 import { InventoryView } from "../views/inventory-view.jsx";
 import { HistoryView } from "../views/history-view.jsx";
+import { LoginView } from "../views/login-view.jsx";
+import { getStoredAuth, storeAuth } from "../lib/auth.js";
 
 function Content() {
     const [currentView, setCurrentView] = useState("dashboard");
@@ -39,8 +41,21 @@ function Content() {
 }
 
 function MainPage() {
+    const [auth, setAuth] = useState(() => getStoredAuth());
+
+    if (!auth) {
+        return (
+            <LoginView
+                onLogin={(authData) => {
+                    storeAuth(authData);
+                    setAuth(authData);
+                }}
+            />
+        );
+    }
+
     return (
-        <ContextProvider>
+        <ContextProvider authToken={auth?.token}>
             <Content/>
         </ContextProvider>
     )

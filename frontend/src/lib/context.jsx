@@ -15,13 +15,20 @@ import { categories } from "../domain/categories.js";
 
 const Context = createContext(undefined);
 
-export function ContextProvider({ children }) {
+export function ContextProvider({ children, authToken }) {
     const [products, setProducts] = useState([])
     const [cart, setCart] = useState([])
     const [transactions, setTransactions] = useState([])
 
     useEffect(() => {
         let active = true;
+
+        if (!authToken) {
+            setProducts([]);
+            setCart([]);
+            setTransactions([]);
+            return undefined;
+        }
 
         (async () => {
             try {
@@ -38,7 +45,7 @@ export function ContextProvider({ children }) {
         return () => {
             active = false;
         }
-    }, []);
+    }, [authToken]);
 
     const addToCart = (product, quantityToAdd = 1) => {
         setCart(prev => addToCartDomain(prev, product, quantityToAdd));
