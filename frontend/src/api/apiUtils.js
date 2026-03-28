@@ -1,5 +1,17 @@
-export async function request(url, options, fallbackMessage) {
-    const response = await fetch(url, options);
+import { getAuthToken } from "../lib/auth.js";
+
+export async function request(url, options = {}, fallbackMessage) {
+    const headers = { ...(options.headers ?? {}) };
+    const token = getAuthToken();
+
+    if (token && !headers.Authorization) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers,
+    });
 
     if (!response.ok) {
         let message = fallbackMessage
