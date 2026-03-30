@@ -29,9 +29,6 @@ class UserServiceTest {
 
     @Test
     void createUser_shouldCreateAndSaveUser() {
-        when(userRepository.count())
-                .thenReturn(1L);
-
         when(userRepository.existsByUsername("abc"))
                 .thenReturn(false);
 
@@ -58,9 +55,6 @@ class UserServiceTest {
 
     @Test
     void createUser_shouldNormalizeUsernameBeforeCheckingAndSaving() {
-        when(userRepository.count())
-                .thenReturn(1L);
-
         when(userRepository.existsByUsername("abc"))
                 .thenReturn(false);
 
@@ -100,9 +94,6 @@ class UserServiceTest {
 
     @Test
     void createUser_shouldThrowExceptionWhenUsernameExists() {
-        when(userRepository.count())
-                .thenReturn(1L);
-
         when(userRepository.existsByUsername("abc"))
                 .thenReturn(true);
 
