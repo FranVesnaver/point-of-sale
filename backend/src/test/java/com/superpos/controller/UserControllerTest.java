@@ -2,6 +2,7 @@ package com.superpos.controller;
 
 import com.superpos.config.AuthInterceptor;
 import com.superpos.exception.ExistingUsernameException;
+import com.superpos.exception.FirstUserIsNotAdminException;
 import com.superpos.model.User;
 import com.superpos.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +40,7 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser_shouldReturn200AndUser() throws Exception {
+    void createUser_shouldReturn201AndUser() throws Exception {
         User user = new User();
         user.setUsername("abc");
         user.setPassword("password");
@@ -57,11 +58,30 @@ class UserControllerTest {
                             "admin": true
                         }
                         """))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("username").value("abc"))
                 .andExpect(jsonPath("admin").value(true));
 
         verify(userService).createUser("abc", "password", true);
+    }
+
+    @Test
+    void createUser_shouldReturn422WhenFirstUserIsNotAdmin() throws Exception {
+        doThrow(new FirstUserIsNotAdminException())
+                .when(userService)
+                .createUser(eq("abc"), eq("123"), eq(false));
+
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "username": "abc",
+                            "password": "123",
+                            "admin": false
+                        }
+                        """))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.error").value("FIRST_USER_MUST_BE_ADMIN"));
     }
 
     @Test

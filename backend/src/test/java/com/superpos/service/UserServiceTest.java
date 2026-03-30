@@ -1,6 +1,7 @@
 package com.superpos.service;
 
 import com.superpos.exception.ExistingUsernameException;
+import com.superpos.exception.FirstUserIsNotAdminException;
 import com.superpos.exception.InvalidCredentialsException;
 import com.superpos.model.User;
 import com.superpos.repository.UserRepository;
@@ -28,6 +29,8 @@ class UserServiceTest {
 
     @Test
     void createUser_shouldCreateAndSaveUser() {
+        when(userRepository.count())
+                .thenReturn(1L);
 
         when(userRepository.existsByUsername("abc"))
                 .thenReturn(false);
@@ -54,7 +57,51 @@ class UserServiceTest {
     }
 
     @Test
+    void createUser_shouldNormalizeUsernameBeforeCheckingAndSaving() {
+        when(userRepository.count())
+                .thenReturn(1L);
+
+        when(userRepository.existsByUsername("abc"))
+                .thenReturn(false);
+
+        when(passwordHasher.hash("123"))
+                .thenReturn("hashed-password");
+
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = userService.createUser(
+                "  AbC  ",
+                "123",
+                true
+        );
+
+        assertEquals("abc", result.getUsername());
+        verify(userRepository).existsByUsername("abc");
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void createUser_shouldThrowExceptionWhenFirstUserIsNotAdmin() {
+        when(userRepository.count())
+                .thenReturn(0L);
+
+        assertThrows(FirstUserIsNotAdminException.class, () ->
+                userService.createUser(
+                        "abc",
+                        "123",
+                        false
+                )
+        );
+
+        verify(userRepository, never()).existsByUsername(any());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
     void createUser_shouldThrowExceptionWhenUsernameExists() {
+        when(userRepository.count())
+                .thenReturn(1L);
 
         when(userRepository.existsByUsername("abc"))
                 .thenReturn(true);
@@ -85,6 +132,23 @@ class UserServiceTest {
 
         assertEquals(user, result);
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void authenticate_shouldNormalizeUsernameBeforeSearching() {
+        User user = new User();
+        user.setUsername("cashier");
+        user.setPassword("hashed");
+        user.setAdmin(false);
+
+        when(userRepository.findByUsername("cashier")).thenReturn(java.util.Optional.of(user));
+        when(passwordHasher.matches("secret", "hashed")).thenReturn(true);
+        when(passwordHasher.isHashed("hashed")).thenReturn(true);
+
+        User result = userService.authenticate("  CaShIeR  ", "secret");
+
+        assertEquals(user, result);
+        verify(userRepository).findByUsername("cashier");
     }
 
     @Test
