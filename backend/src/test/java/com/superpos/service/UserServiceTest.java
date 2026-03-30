@@ -83,7 +83,7 @@ class UserServiceTest {
 
     @Test
     void createUser_shouldThrowExceptionWhenFirstUserIsNotAdmin() {
-        when(userRepository.count())
+        when(userRepository.countByAdminTrue())
                 .thenReturn(0L);
 
         assertThrows(FirstUserIsNotAdminException.class, () ->
