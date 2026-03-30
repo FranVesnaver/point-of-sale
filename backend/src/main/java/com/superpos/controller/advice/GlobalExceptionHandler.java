@@ -102,6 +102,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(FirstUserIsNotAdminException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorResponse handleFirstUserIsNotAdmin(FirstUserIsNotAdminException e) {
+        return new ErrorResponse(
+                e.getMessage(),
+                "FIRST_USER_MUST_BE_ADMIN",
+                HttpStatus.UNPROCESSABLE_ENTITY.value()
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(MethodArgumentNotValidException e) {
