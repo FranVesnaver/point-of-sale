@@ -1,10 +1,13 @@
 package com.superpos.service;
 
 import com.superpos.exception.ExistingUsernameException;
+import com.superpos.exception.FirstUserIsNotAdminException;
 import com.superpos.exception.InvalidCredentialsException;
 import com.superpos.model.User;
 import com.superpos.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Locale;
 
 @Service
 public class UserService {
@@ -17,19 +20,25 @@ public class UserService {
         this.passwordHasher = passwordHasher;
     }
 
-    public User createUser(String username, String password, boolean admin) {
-        if (userRepository.existsByUsername(username)) throw new ExistingUsernameException(username);
+    public User createUser(String username, String password, boolean IsAdmin) {
+        if (thereAreNoAdmins() && !IsAdmin) throw new FirstUserIsNotAdminException();
+
+        String normalizedUsername = normalizeUsername(username);
+
+        if (userRepository.existsByUsername(normalizedUsername)) throw new ExistingUsernameException(normalizedUsername);
 
         User user = new User();
-        user.setUsername(username);
+        user.setUsername(normalizedUsername);
         user.setPassword(passwordHasher.hash(password));
-        user.setAdmin(admin);
+        user.setAdmin(IsAdmin);
 
         return userRepository.save(user);
     }
 
     public User authenticate(String username, String password) {
-        User user = userRepository.findByUsername(username)
+        String normalizedUsername = normalizeUsername(username);
+
+        User user = userRepository.findByUsername(normalizedUsername)
                 .orElseThrow(InvalidCredentialsException::new);
 
         if (!passwordHasher.matches(password, user.getPassword())) {
@@ -44,8 +53,11 @@ public class UserService {
         return user;
     }
 
-    public boolean hasUsers() {
-        return userRepository.count() > 0;
+    public boolean thereAreNoAdmins() {
+        return userRepository.countByAdminTrue() == 0;
     }
 
+    private String normalizeUsername(String username) {
+        return username.trim().toLowerCase(Locale.ROOT);
+    }
 }

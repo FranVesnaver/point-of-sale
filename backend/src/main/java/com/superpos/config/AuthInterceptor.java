@@ -55,7 +55,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         return "/api/users".equals(path)
                 && "POST".equalsIgnoreCase(method)
-                && !userService.hasUsers();
+                && userService.thereAreNoAdmins();
     }
 
     private boolean requiresAdmin(String path, String method) {
