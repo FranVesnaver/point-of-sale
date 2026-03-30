@@ -5,10 +5,8 @@ import com.superpos.dto.UserResponse;
 import com.superpos.model.User;
 import com.superpos.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -21,6 +19,7 @@ public class UserController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(
             @Valid @RequestBody CreateUserRequest request
     ) {
@@ -28,7 +27,7 @@ public class UserController {
         User user = userService.createUser(
                 request.getUsername(),
                 request.getPassword(),
-                request.isAdmin()
+                request.getAdmin()
         );
 
         return toResponse(user);
