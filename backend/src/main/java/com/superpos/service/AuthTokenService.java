@@ -14,6 +14,8 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AuthTokenService {
@@ -21,6 +23,7 @@ public class AuthTokenService {
     private static final String HMAC_ALGORITHM = "HmacSHA256";
 
     private final SecureRandom secureRandom = new SecureRandom();
+    private final Map<String, Long> revokedTokens = new ConcurrentHashMap<>();
     private final String secret;
     private final long tokenDurationSeconds;
 
@@ -33,6 +36,7 @@ public class AuthTokenService {
     }
 
     public TokenDetails generateToken(User user) {
+        purgeExpiredRevokedTokens();
         long expiresAt = Instant.now().plusSeconds(tokenDurationSeconds).getEpochSecond();
         String nonce = randomNonce();
         String payload = String.join("\t",
@@ -50,8 +54,13 @@ public class AuthTokenService {
     }
 
     public AuthenticatedUser parseToken(String token) {
+        purgeExpiredRevokedTokens();
         if (token == null || token.isBlank()) {
             throw new UnauthorizedException("Missing bearer token");
+        }
+
+        if (revokedTokens.containsKey(token)) {
+            throw new UnauthorizedException("Revoked bearer token");
         }
 
         String[] parts = token.split("\\.");
@@ -85,6 +94,16 @@ public class AuthTokenService {
         );
     }
 
+    public void revokeToken(String token) {
+        String normalizedToken = token == null ? null : token.trim();
+        if (normalizedToken == null || normalizedToken.isEmpty()) {
+            throw new UnauthorizedException("Missing bearer token");
+        }
+
+        AuthenticatedUser authenticatedUser = parseToken(normalizedToken);
+        revokedTokens.put(normalizedToken, authenticatedUser.expiresAt());
+    }
+
     private String sign(String value) {
         try {
             Mac mac = Mac.getInstance(HMAC_ALGORITHM);
@@ -100,6 +119,11 @@ public class AuthTokenService {
         byte[] nonce = new byte[12];
         secureRandom.nextBytes(nonce);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(nonce);
+    }
+
+    private void purgeExpiredRevokedTokens() {
+        long now = Instant.now().getEpochSecond();
+        revokedTokens.entrySet().removeIf(entry -> entry.getValue() <= now);
     }
 
 }

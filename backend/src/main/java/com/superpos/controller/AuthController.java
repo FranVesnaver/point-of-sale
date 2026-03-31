@@ -2,14 +2,18 @@ package com.superpos.controller;
 
 import com.superpos.dto.AuthResponse;
 import com.superpos.dto.LoginRequest;
+import com.superpos.exception.UnauthorizedException;
 import com.superpos.model.auth.TokenDetails;
 import com.superpos.model.User;
 import com.superpos.service.AuthTokenService;
 import com.superpos.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,6 +38,14 @@ public class AuthController {
         return toResponse(user, tokenDetails);
     }
 
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(
+            @RequestHeader("Authorization") String authorization
+    ) {
+        authTokenService.revokeToken(extractBearerToken(authorization));
+    }
+
     private AuthResponse toResponse(User user, TokenDetails tokenDetails) {
         AuthResponse response = new AuthResponse();
         response.setToken(tokenDetails.token());
@@ -41,6 +53,14 @@ public class AuthController {
         response.setAdmin(user.isAdmin());
         response.setExpiresAt(tokenDetails.expiresAt());
         return response;
+    }
+
+    private String extractBearerToken(String authorization) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new UnauthorizedException("Missing bearer token");
+        }
+
+        return authorization.substring(7).trim();
     }
 
 }
