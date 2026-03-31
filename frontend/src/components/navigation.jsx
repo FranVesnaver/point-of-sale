@@ -1,5 +1,6 @@
-import { LayoutDashboard, Package, ShoppingCart, History, Store, Users } from "lucide-react";
+import { History, LayoutDashboard, LogOut, Package, ShoppingCart, Store, Users } from "lucide-react";
 import { cn } from "../lib/utils.js";
+import { Button } from "./ui/button.jsx";
 
 const baseNavItems = [
     { id: 'dashboard', label: 'Inicio', icon: LayoutDashboard },
@@ -12,7 +13,7 @@ const adminNavItems = [
     { id: 'users', label: 'Usuarios', icon: Users }
 ];
 
-export function Navigation({ currentView, onNavigate, canManageUsers }) {
+export function Navigation({ currentView, onNavigate, canManageUsers, username, onLogout }) {
     const navItems = canManageUsers ? [...baseNavItems, ...adminNavItems] : baseNavItems;
 
     return (
@@ -51,11 +52,15 @@ export function Navigation({ currentView, onNavigate, canManageUsers }) {
                         )
                     })}
                 </nav>
-                <div className="p-4 border-t border-border">
+                <div className="p-4 border-t border-border space-y-3">
                     <div className="bg-secondary rounded-xl p-4">
-                        <p className="text-sm font-medium text-foreground">¿Necesitas ayuda?</p>
-                        <p className="text-xs text-muted-foreground mt-1">Toca cualquier botón para ver más opciones</p>
+                        <p className="text-sm font-medium text-foreground">{username ?? "Sesion iniciada"}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Acceso al punto de venta</p>
                     </div>
+                    <Button type="button" variant="outline" className="w-full" onClick={onLogout}>
+                        <LogOut className="w-4 h-4" />
+                        Cerrar sesion
+                    </Button>
                 </div>
             </aside>
 
@@ -86,6 +91,16 @@ export function Navigation({ currentView, onNavigate, canManageUsers }) {
                             </button>
                         )
                     })}
+                    <button
+                        type="button"
+                        onClick={onLogout}
+                        className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all min-w-17.5 text-muted-foreground"
+                    >
+                        <div className="p-2 rounded-xl transition-all">
+                            <LogOut className="w-5 h-5" />
+                        </div>
+                        <span className="text-xs font-medium">Salir</span>
+                    </button>
                 </div>
             </nav>
         </>

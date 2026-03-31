@@ -8,9 +8,10 @@ import { InventoryView } from "../views/inventory-view.jsx";
 import { HistoryView } from "../views/history-view.jsx";
 import { LoginView } from "../views/login-view.jsx";
 import { CreateUserView } from "../views/create-user-view.jsx";
-import { getStoredAuth, storeAuth } from "../lib/auth.js";
+import { logout } from "../api/authApi.js";
+import { clearAuth, getStoredAuth, storeAuth } from "../lib/auth.js";
 
-function Content({ auth }) {
+function Content({ auth, onLogout }) {
     const [currentView, setCurrentView] = useState("dashboard");
     const canManageUsers = auth?.admin ?? false;
 
@@ -37,6 +38,8 @@ function Content({ auth }) {
                 currentView={currentView}
                 onNavigate={setCurrentView}
                 canManageUsers={canManageUsers}
+                username={auth?.username}
+                onLogout={onLogout}
             />
 
             <main className="flex-1 overflow-auto pb-24 lg:pb-0">
@@ -51,6 +54,18 @@ function Content({ auth }) {
 function MainPage() {
     const [auth, setAuth] = useState(() => getStoredAuth());
     const [authView, setAuthView] = useState("login");
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+        } catch (error) {
+            console.error("Failed to invalidate auth token on logout", error);
+        } finally {
+            clearAuth();
+            setAuth(null);
+            setAuthView("login");
+        }
+    };
 
     if (!auth) {
         return (
@@ -74,7 +89,7 @@ function MainPage() {
 
     return (
         <ContextProvider authToken={auth?.token}>
-            <Content auth={auth}/>
+            <Content auth={auth} onLogout={handleLogout} />
         </ContextProvider>
     )
 }
