@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShieldCheck, Store } from "lucide-react";
+import { ShieldCheck, Store, UserPlus } from "lucide-react";
 import { login } from "../api/authApi.js";
 import { Button } from "../components/ui/button.jsx";
 import { Input } from "../components/ui/input.jsx";
@@ -12,7 +12,7 @@ import {
     CardTitle
 } from "../components/ui/card.jsx";
 
-export function LoginView({ onLogin }) {
+export function LoginView({ onLogin, onCreateUser }) {
     const [formData, setFormData] = useState({ username: "", password: "" });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
@@ -111,12 +111,25 @@ export function LoginView({ onLogin }) {
                                 </Button>
                             </form>
                         </CardContent>
-                        <CardFooter className="flex items-center justify-between text-xs text-muted-foreground">
+                        <CardFooter className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-xs text-muted-foreground">
                             <span className="flex items-center gap-2">
                                 <ShieldCheck className="h-4 w-4 text-primary" />
                                 Acceso seguro con token
                             </span>
-                            <span>Soporte interno</span>
+                            {onCreateUser ? (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-primary"
+                                    onClick={onCreateUser}
+                                >
+                                    <UserPlus className="h-4 w-4 mr-2" />
+                                    Crear administrador
+                                </Button>
+                            ) : (
+                                <span>Soporte interno</span>
+                            )}
                         </CardFooter>
                     </Card>
                 </div>

@@ -1,14 +1,20 @@
-import {LayoutDashboard, Package, ShoppingCart, History, Store} from "lucide-react";
-import {cn} from "../lib/utils.js";
+import { LayoutDashboard, Package, ShoppingCart, History, Store, Users } from "lucide-react";
+import { cn } from "../lib/utils.js";
 
-const navItems = [
+const baseNavItems = [
     { id: 'dashboard', label: 'Inicio', icon: LayoutDashboard },
     { id: 'sales', label: 'Ventas', icon: ShoppingCart },
     { id: 'inventory', label: 'Inventario', icon: Package },
     { id: 'history', label: 'Historial', icon: History }
 ]
 
-export function Navigation({ currentView, onNavigate }) {
+const adminNavItems = [
+    { id: 'users', label: 'Usuarios', icon: Users }
+];
+
+export function Navigation({ currentView, onNavigate, canManageUsers }) {
+    const navItems = canManageUsers ? [...baseNavItems, ...adminNavItems] : baseNavItems;
+
     return (
         <>
             {/* Desktop Sidebar */}

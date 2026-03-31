@@ -7,10 +7,12 @@ import { SalesView } from "../views/sales-view.jsx";
 import { InventoryView } from "../views/inventory-view.jsx";
 import { HistoryView } from "../views/history-view.jsx";
 import { LoginView } from "../views/login-view.jsx";
+import { CreateUserView } from "../views/create-user-view.jsx";
 import { getStoredAuth, storeAuth } from "../lib/auth.js";
 
-function Content() {
+function Content({ auth }) {
     const [currentView, setCurrentView] = useState("dashboard");
+    const canManageUsers = auth?.admin ?? false;
 
     const renderView = () => {
         switch (currentView) {
@@ -22,6 +24,8 @@ function Content() {
                 return <InventoryView />
             case "history":
                 return <HistoryView />
+            case "users":
+                return <CreateUserView auth={auth} />
             default:
                 return <Dashboard />
         }
@@ -29,11 +33,15 @@ function Content() {
 
     return (
         <div className="min-h-screen bg-background flex">
-            <Navigation currentView={currentView} onNavigate={setCurrentView}/>
+            <Navigation
+                currentView={currentView}
+                onNavigate={setCurrentView}
+                canManageUsers={canManageUsers}
+            />
 
             <main className="flex-1 overflow-auto pb-24 lg:pb-0">
                 <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
-                    {renderView()}
+                    { renderView() }
                 </div>
             </main>
         </div>
@@ -42,21 +50,31 @@ function Content() {
 
 function MainPage() {
     const [auth, setAuth] = useState(() => getStoredAuth());
+    const [authView, setAuthView] = useState("login");
 
     if (!auth) {
         return (
-            <LoginView
-                onLogin={(authData) => {
-                    storeAuth(authData);
-                    setAuth(authData);
-                }}
-            />
+            authView === "create-user" ? (
+                <CreateUserView
+                    mode="bootstrap"
+                    onBack={() => setAuthView("login")}
+                    onUserCreated={() => setAuthView("login")}
+                />
+            ) : (
+                <LoginView
+                    onLogin={(authData) => {
+                        storeAuth(authData);
+                        setAuth(authData);
+                    }}
+                    onCreateUser={() => setAuthView("create-user")}
+                />
+            )
         );
     }
 
     return (
         <ContextProvider authToken={auth?.token}>
-            <Content/>
+            <Content auth={auth}/>
         </ContextProvider>
     )
 }
