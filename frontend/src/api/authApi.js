@@ -8,5 +8,5 @@ export async function login(username, password) {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ username, password }),
-    }, "Error al iniciar sesion");
+    }, "Failed to login");
 }
