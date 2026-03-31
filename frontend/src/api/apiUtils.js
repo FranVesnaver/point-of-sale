@@ -26,5 +26,14 @@ export async function request(url, options = {}, fallbackMessage) {
         throw new Error(message)
     }
 
-    return response.json();
+    if (response.status === 204) {
+        return null;
+    }
+
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+        return response.json();
+    }
+
+    return null;
 }
