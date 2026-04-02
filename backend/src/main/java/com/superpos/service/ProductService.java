@@ -27,12 +27,15 @@ public class ProductService {
             String barcode,
             String name,
             BigDecimal price,
-            int stock,
-            int minStock,
-            Category category
+            BigDecimal stock,
+            BigDecimal minStock,
+            Category category,
+            boolean allowFractionalSale
     ) {
         if (productRepository.existsByBarcode(barcode))
             throw new ExistingBarcodeException(barcode);
+
+        validateStockValues(stock, minStock, allowFractionalSale);
 
         Product product = new Product();
         product.setBarcode(barcode);
@@ -41,6 +44,7 @@ public class ProductService {
         product.setStock(stock);
         product.setMinStock(minStock);
         product.setCategory(category);
+        product.setAllowFractionalSale(allowFractionalSale);
 
         return productRepository.save(product);
     }
@@ -50,13 +54,16 @@ public class ProductService {
             String barcode,
             String name,
             BigDecimal price,
-            int stock,
-            int minStock,
-            Category category
+            BigDecimal stock,
+            BigDecimal minStock,
+            Category category,
+            boolean allowFractionalSale
     ) {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException(productId));
+
+        validateStockValues(stock, minStock, allowFractionalSale);
 
         product.setBarcode(barcode);
         product.setName(name);
@@ -64,8 +71,23 @@ public class ProductService {
         product.setStock(stock);
         product.setMinStock(minStock);
         product.setCategory(category);
+        product.setAllowFractionalSale(allowFractionalSale);
 
         return productRepository.save(product);
+    }
+
+    private void validateStockValues(BigDecimal stock, BigDecimal minStock, boolean allowFractionalSale) {
+        if (allowFractionalSale) {
+            return;
+        }
+
+        if (isDecimalNumber(stock) || isDecimalNumber(minStock)) {
+            throw new IllegalArgumentException("Products that don't allow fractional sale must have an int as stock");
+        }
+    }
+
+    private boolean isDecimalNumber(BigDecimal value) {
+        return value.stripTrailingZeros().scale() > 0;
     }
 
 }

@@ -39,7 +39,8 @@ public class ProductController {
                 request.getPrice(),
                 request.getStock(),
                 request.getMinStock(),
-                request.getCategory()
+                request.getCategory(),
+                request.isAllowFractionalSale()
         );
 
         return toResponse(product);
@@ -58,7 +59,8 @@ public class ProductController {
                 request.getPrice(),
                 request.getStock(),
                 request.getMinStock(),
-                request.getCategory()
+                request.getCategory(),
+                request.isAllowFractionalSale()
         );
         return toResponse(product);
     }
@@ -72,6 +74,7 @@ public class ProductController {
         response.setBarcode(product.getBarcode());
         response.setPrice(product.getPrice());
         response.setCategory(product.getCategory());
+        response.setAllowFractionalSale(product.isAllowFractionalSale());
         return response;
     }
 }

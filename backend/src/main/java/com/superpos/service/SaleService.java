@@ -39,7 +39,7 @@ public class SaleService {
         return saleRepository.save(sale);
     }
 
-    public Sale addProductToSale(Long saleId, String barcode, int quantity) {
+    public Sale addProductToSale(Long saleId, String barcode, BigDecimal quantity) {
         Sale sale = saleRepository.findById(saleId)
                 .orElseThrow(() -> new SaleNotFoundException(saleId));
 
@@ -47,12 +47,14 @@ public class SaleService {
         Product product = productRepository.findByBarcode(barcode)
                 .orElseThrow(() -> new ProductWithBarcodeNotFoundException(barcode));
 
-        if (product.getStock() < quantity) {
+        validateQuantity(product, quantity);
+
+        if (product.getStock().compareTo(quantity) < 0) {
             throw new InsufficientStockException(product.getName());
         }
 
         BigDecimal unitPrice = product.getPrice();
-        BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+        BigDecimal subtotal = unitPrice.multiply(quantity);
 
         SaleItem saleItem = new SaleItem();
         saleItem.setSale(sale);
@@ -75,11 +77,21 @@ public class SaleService {
         // discount items from stock
         for (SaleItem item : sale.getItems()) {
             Product product = item.getProduct();
-            product.setStock(product.getStock() - item.getQuantity());
+            product.setStock(product.getStock().subtract(item.getQuantity()));
         }
 
         sale.setPaymentMethod(paymentMethod);
 
         return saleRepository.save(sale);
+    }
+
+    private void validateQuantity(Product product, BigDecimal quantity) {
+        if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+
+        if (!product.isAllowFractionalSale() && quantity.stripTrailingZeros().scale() > 0) {
+            throw new IllegalArgumentException("This product doesn't allow fractional sales");
+        }
     }
 }
