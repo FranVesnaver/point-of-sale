@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 public class SaleItemResponse {
 
     private String productName;
-    private int quantity;
+    private BigDecimal quantity;
     private BigDecimal unitPrice;
     private BigDecimal subtotal;
 

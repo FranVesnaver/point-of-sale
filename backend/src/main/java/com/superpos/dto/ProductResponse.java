@@ -14,8 +14,9 @@ public class ProductResponse {
     private String name;
     private String barcode;
     private BigDecimal price;
-    private int stock;
-    private int minStock;
+    private BigDecimal stock;
+    private BigDecimal minStock;
     private Category category;
+    private boolean allowFractionalSale;
 
 }

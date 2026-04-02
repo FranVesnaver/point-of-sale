@@ -2,7 +2,6 @@ package com.superpos.dto;
 
 import com.superpos.model.Category;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -21,16 +20,20 @@ public class UpdateProductRequest {
     @DecimalMin("0.01")
     private BigDecimal price;
 
-    @Min(0)
-    private int stock;
+    @NotNull
+    @DecimalMin("0.0")
+    private BigDecimal stock;
 
-    @Min(0)
-    private int minStock;
+    @NotNull
+    @DecimalMin("0.0")
+    private BigDecimal minStock;
 
     @NotBlank
     private String barcode;
 
     @NotNull
     private Category category;
+
+    private boolean allowFractionalSale;
 
 }
