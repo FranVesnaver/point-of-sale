@@ -8,6 +8,7 @@ export function normalizeProduct(product) {
         stock: Number(product.stock),
         minStock: Number(product.minStock),
         category: String(product.category),
+        allowFractionalSale: Boolean(product.allowFractionalSale),
     }
 }
 
@@ -27,4 +28,15 @@ export function filterProducts(products, searchTerm, selectedCategory) {
 
 export function getLowStock(products) {
     return products.filter(product => product.stock <= product.minStock)
+}
+
+export function isWholeQuantity(quantity) {
+    return Number.isInteger(quantity)
+}
+
+export function formatQuantity(quantity) {
+    if (Number.isInteger(quantity)) {
+        return `${quantity}`
+    }
+    return quantity.toFixed(3).replace(/\.?0+$/, "")
 }

@@ -1,4 +1,6 @@
 export function addToCart(cart, product, quantityToAdd = 1) {
+    if (!product.allowFractionalSale && !Number.isInteger(quantityToAdd)) return cart
+
     const existing = cart.find(item => item.id === product.id)
     if (existing) {
         if (existing.quantity + quantityToAdd > product.stock) return cart
@@ -20,7 +22,11 @@ export function updateQuantity(cart, productId, quantity) {
         return removeFromCart(cart, productId)
     }
     return cart.map(item =>
-        item.id === productId ? { ...item, quantity } : item
+        item.id === productId
+            ? (!item.allowFractionalSale && !Number.isInteger(quantity)) || quantity > item.stock
+                ? item
+                : { ...item, quantity }
+            : item
     )
 }
 
