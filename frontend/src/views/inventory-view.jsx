@@ -8,7 +8,7 @@ import { Badge } from "../components/ui/badge.jsx";
 import { Plus, Minus, Package, AlertTriangle, Edit2, Check, X } from "lucide-react";
 import { cn } from "../lib/utils.js";
 import { addProduct, updateProduct } from "../api/productsApi.js";
-import { filterProducts, getLowStock } from "../domain/product.js";
+import { filterProducts, formatQuantity, getLowStock } from "../domain/product.js";
 import { SearchBar } from "../components/search-bar.jsx";
 import { FilterChips } from "../components/filter-chips.jsx";
 
@@ -28,14 +28,30 @@ export function InventoryView() {
         price: 0,
         stock: 0,
         category: "OTHER",
-        minStock: 10
+        minStock: 10,
+        allowFractionalSale: false
     });
 
     const filteredProducts = filterProducts(products, searchTerm, selectedCategory);
     const lowStockCount = getLowStock(products).length;
+    const stockInputStep = editingProduct?.allowFractionalSale ? "0.001" : "1";
+    const newProductStockStep = newProduct.allowFractionalSale ? "0.001" : "1";
+
+    const parseQuantityValue = (value, allowFractionalSale) => {
+        if (value === "") return ""
+        const parsedValue = allowFractionalSale
+            ? Number.parseFloat(value)
+            : Number.parseInt(value, 10)
+
+        return Number.isNaN(parsedValue) ? "" : parsedValue
+    }
 
     const handleSaveStock = (productId) => {
-        const newStockValue = Number.parseInt(editStock);
+        const product = products.find(item => item.id === productId)
+        const newStockValue = product?.allowFractionalSale
+            ? Number.parseFloat(editStock)
+            : Number.parseInt(editStock, 10)
+
         if (!Number.isNaN(newStockValue) && newStockValue >= 0) {
             updateProductStock(productId, newStockValue);
         }
@@ -55,7 +71,8 @@ export function InventoryView() {
                 newProduct.stock,
                 newProduct.minStock,
                 newProduct.barcode,
-                newProduct.category
+                newProduct.category,
+                newProduct.allowFractionalSale
             );
 
             setProducts(prev => [...prev, {
@@ -69,7 +86,8 @@ export function InventoryView() {
                 price: 0,
                 stock: 0,
                 category: "OTHER",
-                minStock: 10
+                minStock: 10,
+                allowFractionalSale: false
             });
 
         } catch (error) {
@@ -91,7 +109,8 @@ export function InventoryView() {
                 editingProduct.stock,
                 editingProduct.minStock,
                 editingProduct.barcode,
-                editingProduct.category
+                editingProduct.category,
+                editingProduct.allowFractionalSale
             );
 
             setProducts(prev =>
@@ -184,6 +203,9 @@ export function InventoryView() {
                                             </Button>
                                         </div>
                                         <p className="text-lg font-bold text-primary">${product.price.toFixed(2)}</p>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {product.allowFractionalSale ? "Venta fraccionada habilitada" : "Venta por unidad"}
+                                        </p>
                                         {product.barcode && (
                                             <p className="text-xs text-muted-foreground mt-1">Código: {product.barcode}</p>
                                         )}
@@ -200,6 +222,7 @@ export function InventoryView() {
                                                         onChange={(e) => setEditStock(e.target.value)}
                                                         className="w-20 h-10 text-center"
                                                         min="0"
+                                                        step={product.allowFractionalSale ? "0.001" : "1"}
                                                         autoFocus
                                                     />
                                                 </div>
@@ -230,14 +253,14 @@ export function InventoryView() {
                                                     isLowStock ? "bg-destructive/10 text-destructive" : "bg-secondary"
                                                 )}>
                                                     <p className="text-xs text-muted-foreground">Stock</p>
-                                                    <p className="font-bold text-lg">{product.stock}</p>
+                                                    <p className="font-bold text-lg">{formatQuantity(product.stock)}</p>
                                                 </div>
                                                 <div className="flex flex-col gap-1">
                                                     <Button
                                                         variant="outline"
                                                         size="icon"
                                                         className="h-8 w-8 bg-transparent"
-                                                        onClick={() => updateProductStock(product.id, product.stock + 1)}
+                                                        onClick={() => updateProductStock(product.id, product.stock + (product.allowFractionalSale ? 0.5 : 1))}
                                                     >
                                                         <Plus className="w-3 h-3" />
                                                     </Button>
@@ -245,7 +268,7 @@ export function InventoryView() {
                                                         variant="outline"
                                                         size="icon"
                                                         className="h-8 w-8 bg-transparent"
-                                                        onClick={() => updateProductStock(product.id, Math.max(0, product.stock - 1))}
+                                                        onClick={() => updateProductStock(product.id, Math.max(0, product.stock - (product.allowFractionalSale ? 0.5 : 1)))}
                                                     >
                                                         <Minus className="w-3 h-3" />
                                                     </Button>
@@ -265,7 +288,7 @@ export function InventoryView() {
                                         )}
                                         {isLowStock && (
                                             <Badge variant="destructive" className="text-xs">
-                                                Stock bajo (mín: {product.minStock})
+                                                Stock bajo (mín: {formatQuantity(product.minStock)})
                                             </Badge>
                                         )}
                                     </div>
@@ -327,11 +350,42 @@ export function InventoryView() {
                                     <Input
                                         type="number"
                                         value={newProduct.stock || ""}
-                                        onChange={(e) => setNewProduct({...newProduct, stock: Number.parseInt(e.target.value)})}
+                                        onChange={(e) => setNewProduct({...newProduct, stock: parseQuantityValue(e.target.value, newProduct.allowFractionalSale)})}
                                         placeholder="0"
                                         className="h-12"
                                         min="0"
+                                        step={newProductStockStep}
                                     />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-foreground mb-2 block">Tipo de Venta</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setNewProduct({...newProduct, allowFractionalSale: false, stock: Math.trunc(Number(newProduct.stock) || 0), minStock: Math.trunc(Number(newProduct.minStock) || 0)})}
+                                        className={cn(
+                                            "px-3 py-3 rounded-lg text-sm font-medium transition-all",
+                                            !newProduct.allowFractionalSale
+                                                ? "bg-primary text-primary-foreground"
+                                                : "bg-secondary text-foreground hover:bg-secondary/80"
+                                        )}
+                                    >
+                                        Por unidad
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setNewProduct({...newProduct, allowFractionalSale: true})}
+                                        className={cn(
+                                            "px-3 py-3 rounded-lg text-sm font-medium transition-all",
+                                            newProduct.allowFractionalSale
+                                                ? "bg-primary text-primary-foreground"
+                                                : "bg-secondary text-foreground hover:bg-secondary/80"
+                                        )}
+                                    >
+                                        Fraccionado
+                                    </button>
                                 </div>
                             </div>
 
@@ -361,10 +415,11 @@ export function InventoryView() {
                                 <Input
                                     type="number"
                                     value={newProduct.minStock || ""}
-                                    onChange={(e) => setNewProduct({...newProduct, minStock: Number.parseInt(e.target.value)})}
+                                    onChange={(e) => setNewProduct({...newProduct, minStock: parseQuantityValue(e.target.value, newProduct.allowFractionalSale)})}
                                     placeholder="10"
                                     className="h-12"
-                                    min="1"
+                                    min="0"
+                                    step={newProductStockStep}
                                 />
                             </div>
 
@@ -421,11 +476,47 @@ export function InventoryView() {
                                     <Input
                                         type="number"
                                         value={editingProduct.stock || ""}
-                                        onChange={(e) => setEditingProduct({...editingProduct, stock: Number.parseInt(e.target.value)})}
+                                        onChange={(e) => setEditingProduct({...editingProduct, stock: parseQuantityValue(e.target.value, editingProduct.allowFractionalSale)})}
                                         placeholder="0"
                                         className="h-12"
                                         min="0"
+                                        step={stockInputStep}
                                     />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-foreground mb-2 block">Tipo de Venta</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditingProduct({
+                                            ...editingProduct,
+                                            allowFractionalSale: false,
+                                            stock: Math.trunc(Number(editingProduct.stock) || 0),
+                                            minStock: Math.trunc(Number(editingProduct.minStock) || 0)
+                                        })}
+                                        className={cn(
+                                            "px-3 py-3 rounded-lg text-sm font-medium transition-all",
+                                            !editingProduct.allowFractionalSale
+                                                ? "bg-primary text-primary-foreground"
+                                                : "bg-secondary text-foreground hover:bg-secondary/80"
+                                        )}
+                                    >
+                                        Por unidad
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditingProduct({...editingProduct, allowFractionalSale: true})}
+                                        className={cn(
+                                            "px-3 py-3 rounded-lg text-sm font-medium transition-all",
+                                            editingProduct.allowFractionalSale
+                                                ? "bg-primary text-primary-foreground"
+                                                : "bg-secondary text-foreground hover:bg-secondary/80"
+                                        )}
+                                    >
+                                        Fraccionado
+                                    </button>
                                 </div>
                             </div>
 
@@ -465,10 +556,11 @@ export function InventoryView() {
                                 <Input
                                     type="number"
                                     value={editingProduct.minStock || ""}
-                                    onChange={(e) => setEditingProduct({...editingProduct, minStock: Number.parseInt(e.target.value)})}
+                                    onChange={(e) => setEditingProduct({...editingProduct, minStock: parseQuantityValue(e.target.value, editingProduct.allowFractionalSale)})}
                                     placeholder="10"
                                     className="h-12"
-                                    min="1"
+                                    min="0"
+                                    step={stockInputStep}
                                 />
                             </div>
 
