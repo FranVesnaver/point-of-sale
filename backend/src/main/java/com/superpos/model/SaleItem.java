@@ -27,7 +27,7 @@ public class SaleItem {
 
     @Setter
     @Column(nullable = false)
-    private int quantity;
+    private BigDecimal quantity;
 
     @Setter
     @Column(name = "unit_price", nullable = false)

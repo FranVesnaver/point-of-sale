@@ -2,7 +2,6 @@ package com.superpos.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -39,17 +38,22 @@ public class Product {
     @DecimalMin(value = "0.01")
     private BigDecimal price;
 
-    @Min(0)
+    @NotNull
+    @DecimalMin(value = "0.0")
     @Column(nullable = false)
-    private int stock;
+    private BigDecimal stock;
 
-    @Min(0)
-    @Column(name = "min_stock",nullable = false)
-    private int minStock;
+    @NotNull
+    @DecimalMin(value = "0.0")
+    @Column(name = "min_stock", nullable = false)
+    private BigDecimal minStock;
 
     @NotNull
     @Column(nullable = false)
     private Category category;
+
+    @Column(name = "allow_fractional_sale", nullable = false)
+    private boolean allowFractionalSale = false;
 
     @Column(nullable = false)
     private boolean active = true;
