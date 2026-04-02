@@ -53,6 +53,10 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        if ("/api/auth/bootstrap".equals(path) && "GET".equalsIgnoreCase(method)) {
+            return true;
+        }
+
         return "/api/users".equals(path)
                 && "POST".equalsIgnoreCase(method)
                 && userService.thereAreNoAdmins();
