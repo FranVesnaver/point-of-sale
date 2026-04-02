@@ -7,7 +7,7 @@ import { Badge } from "../components/ui/badge.jsx";
 import { Plus, Minus, Trash2, ShoppingCart, CreditCard, Banknote, Smartphone, X, Check, Hash, Barcode } from "lucide-react";
 import { cn } from "../lib/utils.js";
 import { addItemToSale, createSale, finalizeSale } from "../api/salesApi.js";
-import { filterProducts } from "../domain/product.js";
+import { filterProducts, formatQuantity, isWholeQuantity } from "../domain/product.js";
 import { SearchBar } from "../components/search-bar.jsx";
 import { FilterChips } from "../components/filter-chips.jsx";
 
@@ -21,7 +21,7 @@ export function SalesView() {
     const [showSuccess, setShowSuccess] = useState(false);
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
     const [paymentError, setPaymentError] = useState("");
-    const [quantityToAdd, setQuantityToAdd] = useState(1);
+    const [quantityToAdd, setQuantityToAdd] = useState("1");
     const [barcodeScanned, setBarcodeScanned] = useState("");
 
     useEffect(() => {
@@ -91,22 +91,37 @@ export function SalesView() {
         ? Number.parseFloat(cashReceived) - cartTotal
         : 0;
 
+    const parsedQuantityToAdd = Number.parseFloat(quantityToAdd)
+
     const handleQuantityToAddChange = (value) => {
-        const parsedValue = Number.parseInt(value, 10);
-        if (Number.isNaN(parsedValue))
-            setQuantityToAdd(0);
-        else
-            setQuantityToAdd(parsedValue);
+        setQuantityToAdd(value)
+    }
+
+    const getRequestedQuantity = (product) => {
+        if (Number.isNaN(parsedQuantityToAdd) || parsedQuantityToAdd <= 0) {
+            return null
+        }
+        if (!product.allowFractionalSale && !isWholeQuantity(parsedQuantityToAdd)) {
+            setPaymentError("La cantidad debe ser entera para ese producto.")
+            return null
+        }
+        return parsedQuantityToAdd
+    }
+
+    const handleProductSelection = (product) => {
+        const requestedQuantity = getRequestedQuantity(product)
+        if (!requestedQuantity) return
+
+        addToCart(product, requestedQuantity)
+        setBarcodeScanned("")
+        setQuantityToAdd("1")
+        setPaymentError("")
     }
 
     const handleBarcodeScanned = (barcode) => {
         const productScanned = productsByBarcode[barcode];
         if (!productScanned) return;
-        if (Number.isNaN(quantityToAdd) || quantityToAdd === 0) return;
-
-        addToCart(productScanned, quantityToAdd);
-        setBarcodeScanned("");
-        setQuantityToAdd(1);
+        handleProductSelection(productScanned)
     }
 
     return (
@@ -131,7 +146,7 @@ export function SalesView() {
                         <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                         <Input
                             type="text"
-                            inputMode="numeric"
+                            inputMode="decimal"
                             value={quantityToAdd}
                             onChange={(e) => handleQuantityToAddChange(e.target.value)}
                             className="h-12 w-full pl-11 pr-2 text-sm bg-card border-border"
@@ -183,7 +198,7 @@ export function SalesView() {
                                 <button
                                     type="button"
                                     key={product.id}
-                                    onClick={() => !isOutOfStock && addToCart(product)}
+                                    onClick={() => !isOutOfStock && handleProductSelection(product)}
                                     disabled={isOutOfStock}
                                     className={cn(
                                         "p-4 rounded-xl text-left transition-all border",
@@ -200,17 +215,19 @@ export function SalesView() {
                                         </Badge>
                                         {inCart && (
                                             <Badge className="bg-primary text-primary-foreground">
-                                                {inCart.quantity}
+                                                {formatQuantity(inCart.quantity)}
                                             </Badge>
                                         )}
                                     </div>
                                     <h3 className="font-semibold text-sm text-foreground line-clamp-2 mb-1">{product.name}</h3>
-                                    <p className="text-lg font-bold text-primary">${product.price.toFixed(2)}</p>
+                                    <p className="text-lg font-bold text-primary">
+                                        ${product.price.toFixed(2)}{product.allowFractionalSale ? "/kg" : ""}
+                                    </p>
                                     <p className={cn(
                                         "text-xs mt-1",
                                         product.stock <= product.minStock ? "text-destructive" : "text-muted-foreground"
                                     )}>
-                                        {isOutOfStock ? "Sin stock" : `${product.stock} disponibles`}
+                                        {isOutOfStock ? "Sin stock" : `${formatQuantity(product.stock)} disponibles`}
                                     </p>
                                 </button>
                             )
@@ -240,23 +257,25 @@ export function SalesView() {
                                     <div key={item.id} className="flex items-center gap-3 p-3 bg-secondary/50 rounded-xl">
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium text-sm text-foreground truncate">{item.name}</p>
-                                            <p className="text-sm text-primary font-semibold">${item.price.toFixed(2)}</p>
+                                            <p className="text-sm text-primary font-semibold">
+                                                ${item.price.toFixed(2)}{item.allowFractionalSale ? "/kg" : ""}
+                                            </p>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Button
                                                 variant="outline"
                                                 size="icon"
                                                 className="h-8 w-8 bg-transparent"
-                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - (item.allowFractionalSale ? 0.5 : 1)))}
                                             >
                                                 <Minus className="w-3 h-3" />
                                             </Button>
-                                            <span className="w-8 text-center font-bold">{item.quantity}</span>
+                                            <span className="w-12 text-center font-bold">{formatQuantity(item.quantity)}</span>
                                             <Button
                                                 variant="outline"
                                                 size="icon"
                                                 className="h-8 w-8 bg-transparent"
-                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                onClick={() => updateQuantity(item.id, item.quantity + (item.allowFractionalSale ? 0.5 : 1))}
                                                 disabled={item.quantity >= item.stock}
                                             >
                                                 <Plus className="w-3 h-3" />
@@ -326,7 +345,7 @@ export function SalesView() {
                         <div className="bg-secondary/50 rounded-xl p-4 mb-6 max-h-40 overflow-y-auto">
                             {cart.map((item) => (
                                 <div key={item.id} className="flex justify-between text-sm py-1">
-                                    <span className="text-foreground">{item.quantity}x {item.name}</span>
+                                    <span className="text-foreground">{formatQuantity(item.quantity)}x {item.name}</span>
                                     <span className="font-medium text-foreground">${(item.price * item.quantity).toFixed(2)}</span>
                                 </div>
                             ))}
