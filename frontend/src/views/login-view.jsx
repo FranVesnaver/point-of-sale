@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { ShieldCheck, Store, UserPlus } from "lucide-react";
-import { login } from "../api/authApi.js";
+import { useEffect, useState } from "react";
+import { Store, UserPlus } from "lucide-react";
+import { bootstrap, login } from "../api/authApi.js";
 import { Button } from "../components/ui/button.jsx";
 import { Input } from "../components/ui/input.jsx";
 import {
@@ -16,6 +16,31 @@ export function LoginView({ onLogin, onCreateUser }) {
     const [formData, setFormData] = useState({ username: "", password: "" });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
+    const [canCreateAdmin, setCanCreateAdmin] = useState(false);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const loadBootstrapState = async () => {
+            try {
+                const response = await bootstrap();
+                if (isMounted) {
+                    setCanCreateAdmin(response.isBoostrap === true);
+                }
+            } catch (loadError) {
+                console.error("Failed to load bootstrap status", loadError);
+                if (isMounted) {
+                    setCanCreateAdmin(false);
+                }
+            }
+        };
+
+        loadBootstrapState();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -87,7 +112,7 @@ export function LoginView({ onLogin, onCreateUser }) {
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-foreground" htmlFor="password">
-                                        Contrasena
+                                        Contraseña
                                     </label>
                                     <Input
                                         id="password"
@@ -112,11 +137,7 @@ export function LoginView({ onLogin, onCreateUser }) {
                             </form>
                         </CardContent>
                         <CardFooter className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-xs text-muted-foreground">
-                            <span className="flex items-center gap-2">
-                                <ShieldCheck className="h-4 w-4 text-primary" />
-                                Acceso seguro con token
-                            </span>
-                            {onCreateUser ? (
+                            {onCreateUser && canCreateAdmin && (
                                 <Button
                                     type="button"
                                     variant="ghost"
@@ -127,8 +148,6 @@ export function LoginView({ onLogin, onCreateUser }) {
                                     <UserPlus className="h-4 w-4 mr-2" />
                                     Crear administrador
                                 </Button>
-                            ) : (
-                                <span>Soporte interno</span>
                             )}
                         </CardFooter>
                     </Card>
