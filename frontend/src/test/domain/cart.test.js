@@ -9,8 +9,9 @@ import {
 } from "../../domain/cart.js"
 
 describe("cart domain", () => {
-    const productA = { id: 1, name: "A", price: 1000, stock: 3, barcode: "111" }
-    const productB = { id: 2, name: "B", price: 500, stock: 10, barcode: "222" }
+    const productA = { id: 1, name: "A", price: 1000, stock: 3, barcode: "111", allowFractionalSale: false }
+    const productB = { id: 2, name: "B", price: 500, stock: 10, barcode: "222", allowFractionalSale: false }
+    const bulkProduct = { id: 3, name: "Harina", price: 2000, stock: 4, barcode: "333", allowFractionalSale: true }
 
     it("adds new products to cart", () => {
         const cart = addToCart([], productA, 2)
@@ -37,6 +38,16 @@ describe("cart domain", () => {
     it("updates quantity and removes when zero", () => {
         const cart = updateQuantity([{ ...productA, quantity: 1 }], productA.id, 0)
         expect(cart).toHaveLength(0)
+    })
+
+    it("rejects fractional quantities for products sold by unit", () => {
+        const cart = addToCart([], productA, 0.5)
+        expect(cart).toEqual([])
+    })
+
+    it("allows fractional quantities for enabled products", () => {
+        const cart = addToCart([], bulkProduct, 0.5)
+        expect(cart[0].quantity).toBe(0.5)
     })
 
     it("clears cart", () => {

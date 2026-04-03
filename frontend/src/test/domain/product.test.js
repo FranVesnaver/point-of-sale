@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeProduct, normalizeProducts, filterProducts, getLowStock } from "../../domain/product.js";
+import { normalizeProduct, normalizeProducts, filterProducts, formatQuantity, getLowStock } from "../../domain/product.js";
 
 describe("product domain", () => {
     const products = [
@@ -16,7 +16,8 @@ describe("product domain", () => {
             price: "5000",
             stock: "2",
             minStock: "1",
-            category: "OTHER"
+            category: "OTHER",
+            allowFractionalSale: true
         };
         const normalized = normalizeProduct(input);
         expect(normalized).toEqual({
@@ -27,7 +28,8 @@ describe("product domain", () => {
             price: 5000,
             stock: 2,
             minStock: 1,
-            category: "OTHER"
+            category: "OTHER",
+            allowFractionalSale: true
         });
     })
 
@@ -58,5 +60,10 @@ describe("product domain", () => {
         const lowStock = getLowStock(products);
         expect(lowStock).toHaveLength(1);
         expect(lowStock[0].id).toBe(2);
+    })
+
+    it("formats fractional quantities without trailing zeroes", () => {
+        expect(formatQuantity(0.5)).toBe("0.5")
+        expect(formatQuantity(2)).toBe("2")
     })
 })
