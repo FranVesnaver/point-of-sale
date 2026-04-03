@@ -67,10 +67,12 @@ class ProductControllerTest {
         product.setBarcode("123");
         product.setName("abc");
         product.setPrice(BigDecimal.ONE);
-        product.setStock(10);
+        product.setStock(BigDecimal.TEN);
+        product.setMinStock(new BigDecimal("5"));
         product.setCategory(Category.OTHER);
+        product.setAllowFractionalSale(false);
 
-        when(productService.addProduct("123", "abc", BigDecimal.ONE, 10, 5, Category.OTHER))
+        when(productService.addProduct("123", "abc", BigDecimal.ONE, BigDecimal.TEN, new BigDecimal("5"), Category.OTHER, false))
                 .thenReturn(product);
 
         mockMvc.perform(post("/api/products")
@@ -82,12 +84,14 @@ class ProductControllerTest {
                             "price": 1,
                             "stock": 10,
                             "minStock": 5,
-                            "category": "OTHER"
+                            "category": "OTHER",
+                            "allowFractionalSale": false
                         }
                         """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("abc"))
-                .andExpect(jsonPath("$.barcode").value("123"));
+                .andExpect(jsonPath("$.barcode").value("123"))
+                .andExpect(jsonPath("$.allowFractionalSale").value(false));
     }
 
     @Test
@@ -95,7 +99,7 @@ class ProductControllerTest {
 
         doThrow(new ExistingBarcodeException("123"))
                 .when(productService)
-                .addProduct(eq("123"), eq("abc"), eq(BigDecimal.ONE), eq(10), eq(10), eq(Category.OTHER));
+                .addProduct(eq("123"), eq("abc"), eq(BigDecimal.ONE), eq(BigDecimal.TEN), eq(BigDecimal.TEN), eq(Category.OTHER), eq(false));
 
         mockMvc.perform(post("/api/products")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -106,7 +110,8 @@ class ProductControllerTest {
                             "price": 1,
                             "stock": 10,
                             "minStock": 10,
-                            "category": "OTHER"
+                            "category": "OTHER",
+                            "allowFractionalSale": false
                         }
                         """))
                 .andExpect(status().isConflict())
@@ -120,11 +125,12 @@ class ProductControllerTest {
         product.setBarcode("345");
         product.setName("dfe");
         product.setPrice(BigDecimal.TEN);
-        product.setStock(15);
-        product.setMinStock(5);
+        product.setStock(new BigDecimal("15"));
+        product.setMinStock(new BigDecimal("5"));
         product.setCategory(Category.OTHER);
+        product.setAllowFractionalSale(true);
 
-        when(productService.updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15, 5, Category.OTHER))
+        when(productService.updateProduct(1L, "345", "dfe", BigDecimal.TEN, new BigDecimal("15"), new BigDecimal("5"), Category.OTHER, true))
                 .thenReturn(product);
 
         mockMvc.perform(put("/api/products/1")
@@ -136,7 +142,8 @@ class ProductControllerTest {
                             "price": 10,
                             "stock": 15,
                             "minStock": 5,
-                            "category": "OTHER"
+                            "category": "OTHER",
+                            "allowFractionalSale": true
                         }
                         """))
                 .andExpect(status().isOk())
@@ -146,10 +153,11 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.price").value(10))
                 .andExpect(jsonPath("$.stock").value(15))
                 .andExpect(jsonPath("$.minStock").value(5))
-                .andExpect(jsonPath("$.category").value("OTHER"));
+                .andExpect(jsonPath("$.category").value("OTHER"))
+                .andExpect(jsonPath("$.allowFractionalSale").value(true));
 
         verify(productService, times(1))
-                .updateProduct(1L, "345", "dfe", BigDecimal.TEN, 15, 5, Category.OTHER);
+                .updateProduct(1L, "345", "dfe", BigDecimal.TEN, new BigDecimal("15"), new BigDecimal("5"), Category.OTHER, true);
     }
 
     @Test
@@ -157,7 +165,7 @@ class ProductControllerTest {
 
         doThrow(new ProductNotFoundException(1L))
                 .when(productService)
-                .updateProduct(eq(1L), anyString(), anyString(), any(BigDecimal.class), anyInt(), anyInt(), any(Category.class));
+                .updateProduct(eq(1L), anyString(), anyString(), any(BigDecimal.class), any(BigDecimal.class), any(BigDecimal.class), any(Category.class), anyBoolean());
 
         mockMvc.perform(put("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -168,7 +176,8 @@ class ProductControllerTest {
                             "price": 10,
                             "stock": 15,
                             "minStock": 5,
-                            "category": "OTHER"
+                            "category": "OTHER",
+                            "allowFractionalSale": false
                         }
                         """))
                 .andExpect(status().isNotFound())

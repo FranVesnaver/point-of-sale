@@ -75,7 +75,7 @@ class SaleServiceTest {
         product.setBarcode("123");
         product.setName("Coca Cola");
         product.setPrice(new BigDecimal("100"));
-        product.setStock(10);
+        product.setStock(BigDecimal.TEN);
 
         Sale sale = new Sale();
         sale.setId(1L);
@@ -88,7 +88,7 @@ class SaleServiceTest {
         when(productRepository.findByBarcode("123"))
                 .thenReturn(Optional.of(product));
 
-        Sale updatedSale = saleService.addProductToSale(1L, "123", 2);
+        Sale updatedSale = saleService.addProductToSale(1L, "123", new BigDecimal("2"));
 
         assertEquals(1, updatedSale.getItems().size());
         assertEquals(new BigDecimal("200"), updatedSale.getTotal());
@@ -100,7 +100,7 @@ class SaleServiceTest {
         product.setBarcode("123");
         product.setName("Coca Cola");
         product.setPrice(new BigDecimal("100"));
-        product.setStock(1);
+        product.setStock(BigDecimal.ONE);
 
         Sale sale = new Sale();
         sale.setId(1L);
@@ -112,7 +112,7 @@ class SaleServiceTest {
                 .thenReturn(Optional.of(product));
 
         assertThrows(InsufficientStockException.class,
-                () -> saleService.addProductToSale(1L, "123", 2)
+                () -> saleService.addProductToSale(1L, "123", new BigDecimal("2"))
         );
     }
 
@@ -128,7 +128,7 @@ class SaleServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(ProductWithBarcodeNotFoundException.class,
-                () -> saleService.addProductToSale(1L, "999", 1)
+                () -> saleService.addProductToSale(1L, "999", BigDecimal.ONE)
         );
     }
 
@@ -138,7 +138,7 @@ class SaleServiceTest {
         product.setBarcode("123");
         product.setName("Coca Cola");
         product.setPrice(new BigDecimal("100"));
-        product.setStock(2);
+        product.setStock(new BigDecimal("2"));
 
         Sale sale = new Sale();
         sale.setId(1L);
@@ -151,9 +151,9 @@ class SaleServiceTest {
         when(saleRepository.save(any(Sale.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
 
-        saleService.addProductToSale(sale.getId(), "123", 1);
+        saleService.addProductToSale(sale.getId(), "123", BigDecimal.ONE);
         saleService.finalizeSale(sale.getId(), PaymentMethod.CASH);
 
-        assertEquals(1, product.getStock());
+        assertEquals(BigDecimal.ONE, product.getStock());
     }
 }

@@ -69,18 +69,18 @@ class SaleControllerTest {
         product.setName("abc");
         product.setBarcode("123");
         product.setPrice(BigDecimal.ONE);
-        product.setStock(3);
+        product.setStock(new BigDecimal("3"));
 
         Sale sale = new Sale();
         sale.setId(1L);
 
         SaleItem saleItem = new SaleItem();
         saleItem.setProduct(product);
-        saleItem.setQuantity(1);
+        saleItem.setQuantity(BigDecimal.ONE);
 
         sale.getItems().add(saleItem);
 
-        when(saleService.addProductToSale(sale.getId(), "123", 1))
+        when(saleService.addProductToSale(sale.getId(), "123", BigDecimal.ONE))
                 .thenReturn(sale);
 
         mockMvc.perform(post("/api/sales/1/items")
@@ -116,7 +116,7 @@ class SaleControllerTest {
 
         doThrow(new ProductWithBarcodeNotFoundException("123"))
                 .when(saleService)
-                .addProductToSale(eq(1L), eq("123"), eq(1));
+                .addProductToSale(eq(1L), eq("123"), eq(BigDecimal.ONE));
 
         mockMvc.perform(post("/api/sales/1/items")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -135,7 +135,7 @@ class SaleControllerTest {
 
         doThrow(new InsufficientStockException("abc"))
                 .when(saleService)
-                .addProductToSale(eq(1L), eq("123"), eq(2));
+                .addProductToSale(eq(1L), eq("123"), eq(new BigDecimal("2")));
 
         mockMvc.perform(post("/api/sales/1/items")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -154,7 +154,7 @@ class SaleControllerTest {
 
         doThrow(new SaleNotFoundException(1L))
                 .when(saleService)
-                .addProductToSale(eq(1L), eq("123"), eq(1));
+                .addProductToSale(eq(1L), eq("123"), eq(BigDecimal.ONE));
 
         mockMvc.perform(post("/api/sales/1/items")
                         .contentType(MediaType.APPLICATION_JSON)
