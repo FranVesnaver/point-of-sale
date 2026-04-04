@@ -266,7 +266,7 @@ export function SalesView() {
                                                 variant="outline"
                                                 size="icon"
                                                 className="h-8 w-8 bg-transparent"
-                                                onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - (item.allowFractionalSale ? 0.5 : 1)))}
+                                                onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - (item.allowFractionalSale ? 0.1 : 1)))}
                                             >
                                                 <Minus className="w-3 h-3" />
                                             </Button>
@@ -275,7 +275,7 @@ export function SalesView() {
                                                 variant="outline"
                                                 size="icon"
                                                 className="h-8 w-8 bg-transparent"
-                                                onClick={() => updateQuantity(item.id, item.quantity + (item.allowFractionalSale ? 0.5 : 1))}
+                                                onClick={() => updateQuantity(item.id, item.quantity + (item.allowFractionalSale ? 0.1 : 1))}
                                                 disabled={item.quantity >= item.stock}
                                             >
                                                 <Plus className="w-3 h-3" />
@@ -412,7 +412,7 @@ export function SalesView() {
                                     className="h-14 text-xl font-bold text-center"
                                     autoFocus
                                 />
-                                {change > 0 && (
+                                {change.toFixed(2) > 0 && (
                                     <div className="mt-3 p-4 bg-accent rounded-xl text-center">
                                         <p className="text-sm text-accent-foreground">Cambio a devolver:</p>
                                         <p className="text-2xl font-bold text-accent-foreground">${change.toFixed(2)}</p>
